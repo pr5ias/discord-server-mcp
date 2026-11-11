@@ -216,11 +216,23 @@ When several bots are in one server, every result says which bot acted, `set_ser
 
 ## Publishing (maintainers)
 
+For a new version, raise the version in `package.json`, `server.json`, `.claude-plugin/plugin.json` and `src/version.js`, then:
+
 ```bash
-npm publish                      # makes `npx discord-server-mcp` work
+npm test                         # builds and runs every test against the fake Discord API
+npm run package                  # release/: the .mcpb and .plugin files
+npm login                        # opens the browser; npm needs 2FA on the account
+npm publish                      # staged: the version waits until it is approved
+```
+
+npm now stages publishes: the new version stays hidden (a first publish shows a `0.0.0-stage` placeholder) until a maintainer approves it in **npmjs.com → Staged Packages → Approve**, or with `npm stage approve <id>`, with 2FA. Then:
+
+```bash
 mcp-publisher login github       # https://github.com/modelcontextprotocol/registry
 mcp-publisher publish            # lists server.json in the official MCP registry
 ```
+
+Finally, make a GitHub release tagged `v<version>` with the two files from `release/`.
 
 ## Development
 
