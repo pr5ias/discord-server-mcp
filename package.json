@@ -1,0 +1,50 @@
+{
+  "name": "discord-server-mcp",
+  "version": "1.0.0",
+  "description": "MCP server and Claude plugin to create, organise and moderate Discord servers through your own bots: 132 tools (a 48-tool core, the rest on demand), live events, role menus, welcomes, tickets, staff slash commands, moderation logs with filters, staff alerts, support forums, rules, verification, scheduled messages, templates with previews, background jobs, backups and safety modes.",
+  "type": "module",
+  "main": "dist/index.mjs",
+  "bin": {
+    "discord-server-mcp": "dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --platform=node --format=esm --target=node20 --banner:js=\"#!/usr/bin/env node\" --outfile=dist/index.mjs",
+    "test": "npm run build && node test/run.mjs",
+    "package": "node scripts/package.mjs",
+    "start": "node dist/index.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "discord",
+    "discord-bot",
+    "claude",
+    "ai",
+    "server-management"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "@anthropic-ai/mcpb": "^2.1.2",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pr5ias/discord-server-mcp.git"
+  },
+  "homepage": "https://github.com/pr5ias/discord-server-mcp",
+  "mcpName": "io.github.pr5ias/discord-server-mcp",
+  "bugs": {
+    "url": "https://github.com/pr5ias/discord-server-mcp/issues"
+  },
+  "author": "pr5ias"
+}

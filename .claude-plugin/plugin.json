@@ -1,0 +1,18 @@
+{
+  "name": "discord-server",
+  "version": "1.0.0",
+  "description": "Create, organise and moderate Discord servers from Claude through your own bot: channels, forums, permissions, roles, members, messages, templates and backups. Includes the /discord menu.",
+  "author": {
+    "name": "pr5ias"
+  },
+  "homepage": "https://github.com/pr5ias/discord-server-mcp",
+  "repository": "https://github.com/pr5ias/discord-server-mcp",
+  "license": "MIT",
+  "keywords": [
+    "discord",
+    "mcp",
+    "server-management",
+    "moderation",
+    "community"
+  ]
+}

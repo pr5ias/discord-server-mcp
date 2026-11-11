@@ -1,0 +1,9 @@
+node_modules/
+build/
+release/
+test/.requests.log
+test/pixel.png
+.env
+token.txt
+*.plugin
+*.mcpb

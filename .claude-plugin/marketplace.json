@@ -1,0 +1,12 @@
+{
+  "name": "discord-server-mcp",
+  "owner": { "name": "pr5ias" },
+  "metadata": { "description": "Discord server management for Claude" },
+  "plugins": [
+    {
+      "name": "discord-server",
+      "source": "./",
+      "description": "Create, organise and moderate Discord servers from Claude through your own bot. Includes the /discord menu."
+    }
+  ]
+}

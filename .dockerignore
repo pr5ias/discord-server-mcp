@@ -1,0 +1,8 @@
+node_modules
+build
+release
+test
+.git
+.github
+*.mcpb
+*.plugin
