@@ -87,6 +87,10 @@ await check("send_message", {
   assert.ok(writes.some((w) => w.method === "PUT" && w.path.includes("pins")));
   assert.match(data.link, /discord.com\/channels/);
 });
+await check("send_message", { channel: "announcements", content: "<@&400000000000000003>", ping_roles: ["Updates Ping"] }, ({ writes }) => {
+  assert.equal(writes[0].body.content, "<@&400000000000000003>"); // written in the text: not added twice
+  assert.deepEqual(writes[0].body.allowed_mentions.roles, ["400000000000000003"]);
+});
 await check("send_message", { channel: "general", content: "no pings @everyone" }, ({ writes }) => {
   assert.deepEqual(writes[0].body.allowed_mentions.parse, []);
 });

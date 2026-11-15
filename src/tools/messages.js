@@ -33,8 +33,11 @@ async function mentions(g, { content, ping_roles, ping_users, ping_everyone }) {
     prefix.push(`<@${m.user.id}>`);
   }
   if (ping_everyone && !prefix.includes("@everyone")) prefix.unshift("@everyone");
+  // A mention already written in the text pings once; don't add it again in front.
+  const text = content || "";
+  const missing = prefix.filter((p) => !text.includes(p) && !(p.startsWith("<@") && !p.startsWith("<@&") && text.includes(p.replace("<@", "<@!"))));
   return {
-    content: [prefix.join(" "), content].filter(Boolean).join("\n") || undefined,
+    content: [missing.join(" "), content].filter(Boolean).join("\n") || undefined,
     allowed_mentions: { parse: ping_everyone ? ["everyone"] : [], roles, users, replied_user: false },
   };
 }

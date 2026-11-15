@@ -42621,8 +42621,10 @@ async function mentions(g, { content, ping_roles, ping_users, ping_everyone }) {
     prefix.push(`<@${m.user.id}>`);
   }
   if (ping_everyone && !prefix.includes("@everyone")) prefix.unshift("@everyone");
+  const text2 = content || "";
+  const missing = prefix.filter((p) => !text2.includes(p) && !(p.startsWith("<@") && !p.startsWith("<@&") && text2.includes(p.replace("<@", "<@!"))));
   return {
-    content: [prefix.join(" "), content].filter(Boolean).join("\n") || void 0,
+    content: [missing.join(" "), content].filter(Boolean).join("\n") || void 0,
     allowed_mentions: { parse: ping_everyone ? ["everyone"] : [], roles, users, replied_user: false }
   };
 }
