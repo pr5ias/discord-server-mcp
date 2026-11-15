@@ -94,7 +94,14 @@ globalThis.fetch = async (url, init = {}) => {
   if (ch && method === "DELETE") return json(state.channels.find((c) => c.id === ch[1]));
   if (/\/messages$/.test(p) && method === "POST") return json({ id: "600000000000000001", channel_id: "x", ...body });
   if (/\/threads$/.test(p) && method === "POST") return json({ id: "700000000000000001", name: body.name });
-  if (/\/messages(\?|$)/.test(path) && method === "GET") return json([{ id: "600000000000000002", author: user, content: "hi", timestamp: "t", embeds: [], attachments: [] }]);
+  if (/\/messages\/\d+$/.test(p) && method === "GET") {
+    const id = p.split("/").pop();
+    return id.startsWith("6666") ? json({ message: "Unknown Message", code: 10008 }, 404) : json({ id, author: user, content: "old", embeds: [], attachments: [] });
+  }
+  if (/\/messages(\?|$)/.test(path) && method === "GET") return json([{ id: "600000000000000002", author: user, content: "hi", timestamp: "t", attachments: [],
+    embeds: [{ title: "Post", description: "x".repeat(400), color: 0xc9a227, footer: { text: "Blog #1" },
+      fields: [{ name: "Field", value: "Field text", inline: true }] }],
+    components: [{ type: 1, components: [{ type: 2, style: 5, label: "Site", url: "https://example.com" }] }] }]);
   if (/\/webhooks$/.test(p) && method === "GET") return json([]);
   if (/\/webhooks$/.test(p) && method === "POST") return json({ id: "800000000000000001", token: "tok", name: body.name });
   if (p.startsWith("/webhooks/")) return json({ id: "600000000000000003", channel_id: "200000000000000003" });

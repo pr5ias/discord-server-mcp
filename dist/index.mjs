@@ -3383,9 +3383,9 @@ var require_utils = __commonJS({
       let output2 = "";
       for (let i = 0; i < input2.length; i++) {
         if (input2[i] === "%" && i + 2 < input2.length) {
-          const hex6 = input2.slice(i + 1, i + 3);
-          if (isHexPair(hex6)) {
-            const normalizedHex = hex6.toUpperCase();
+          const hex7 = input2.slice(i + 1, i + 3);
+          if (isHexPair(hex7)) {
+            const normalizedHex = hex7.toUpperCase();
             const decoded = String.fromCharCode(parseInt(normalizedHex, 16));
             if (decodeUnreserved && isUnreserved(decoded)) {
               output2 += decoded;
@@ -3405,9 +3405,9 @@ var require_utils = __commonJS({
       for (let i = 0; i < input2.length; i++) {
         const ch = input2[i];
         if (ch === "%" && i + 2 < input2.length) {
-          const hex6 = input2.slice(i + 1, i + 3);
-          if (isHexPair(hex6)) {
-            const normalizedHex = hex6.toUpperCase();
+          const hex7 = input2.slice(i + 1, i + 3);
+          if (isHexPair(hex7)) {
+            const normalizedHex = hex7.toUpperCase();
             const decoded = String.fromCharCode(parseInt(normalizedHex, 16));
             if (decoded !== "." && isUnreserved(decoded)) {
               output2 += decoded;
@@ -3447,9 +3447,9 @@ var require_utils = __commonJS({
       for (let i = 0; i < input2.length; i++) {
         const ch = input2[i];
         if (ch === "%" && i + 2 < input2.length) {
-          const hex6 = input2.slice(i + 1, i + 3);
-          if (isHexPair(hex6)) {
-            output2 += "%" + hex6.toUpperCase();
+          const hex7 = input2.slice(i + 1, i + 3);
+          if (isHexPair(hex7)) {
+            output2 += "%" + hex7.toUpperCase();
             i += 2;
             continue;
           }
@@ -3485,9 +3485,9 @@ var require_utils = __commonJS({
       for (let i = 0; i < input2.length; i++) {
         const ch = input2[i];
         if (ch === "%" && i + 2 < input2.length) {
-          const hex6 = input2.slice(i + 1, i + 3);
-          if (isHexPair(hex6)) {
-            output2 += "%" + hex6.toUpperCase();
+          const hex7 = input2.slice(i + 1, i + 3);
+          if (isHexPair(hex7)) {
+            output2 += "%" + hex7.toUpperCase();
             i += 2;
             continue;
           }
@@ -3532,9 +3532,9 @@ var require_utils = __commonJS({
       for (let i = 0; i < input2.length; i++) {
         const ch = input2[i];
         if (ch === "%" && i + 2 < input2.length) {
-          const hex6 = input2.slice(i + 1, i + 3);
-          if (isHexPair(hex6)) {
-            const normalizedHex = hex6.toUpperCase();
+          const hex7 = input2.slice(i + 1, i + 3);
+          if (isHexPair(hex7)) {
+            const normalizedHex = hex7.toUpperCase();
             const decoded = String.fromCharCode(parseInt(normalizedHex, 16));
             if (isUnreserved(decoded)) {
               output2 += decoded;
@@ -3572,9 +3572,9 @@ var require_utils = __commonJS({
       let output2 = "";
       for (let i = 0; i < input2.length; i++) {
         if (input2[i] === "%" && i + 2 < input2.length) {
-          const hex6 = input2.slice(i + 1, i + 3);
-          if (isHexPair(hex6)) {
-            output2 += "%" + hex6.toUpperCase();
+          const hex7 = input2.slice(i + 1, i + 3);
+          if (isHexPair(hex7)) {
+            output2 += "%" + hex7.toUpperCase();
             i += 2;
             continue;
           }
@@ -12299,8 +12299,8 @@ function base64urlToUint8Array(base64url3) {
 function uint8ArrayToBase64url(bytes) {
   return uint8ArrayToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
-function hexToUint8Array(hex6) {
-  const cleanHex = hex6.replace(/^0x/, "");
+function hexToUint8Array(hex7) {
+  const cleanHex = hex7.replace(/^0x/, "");
   if (cleanHex.length % 2 !== 0) {
     throw new Error("Invalid hex string length");
   }
@@ -42628,7 +42628,24 @@ async function mentions(g, { content, ping_roles, ping_users, ping_everyone }) {
     allowed_mentions: { parse: ping_everyone ? ["everyone"] : [], roles, users, replied_user: false }
   };
 }
-function summary(m) {
+var hex4 = (n) => n === void 0 || n === null ? void 0 : `#${n.toString(16).padStart(6, "0")}`;
+function fullEmbed(e) {
+  return defined({
+    title: e.title,
+    url: e.url,
+    description: e.description,
+    color: hex4(e.color),
+    author: e.author?.name,
+    author_icon: e.author?.icon_url,
+    fields: e.fields?.map((f) => defined({ name: f.name, value: f.value, inline: f.inline || void 0 })),
+    footer: e.footer?.text,
+    footer_icon: e.footer?.icon_url,
+    timestamp: e.timestamp,
+    image: e.image?.url,
+    thumbnail: e.thumbnail?.url
+  });
+}
+function summary(m, full = false) {
   return defined({
     id: m.id,
     author: m.author?.global_name || m.author?.username,
@@ -42636,12 +42653,13 @@ function summary(m) {
     time: m.timestamp,
     edited: m.edited_timestamp || void 0,
     content: m.content || void 0,
-    embeds: m.embeds?.length ? m.embeds.map((e) => defined({
+    embeds: m.embeds?.length ? m.embeds.map((e) => full ? fullEmbed(e) : defined({
       title: e.title,
       description: e.description?.slice(0, 300),
       image: e.image?.url,
       fields: e.fields?.map((f) => f.name)
     })) : void 0,
+    buttons: full && m.components?.length ? m.components.flatMap((r) => r.components || []).map((b) => defined({ label: b.label, url: b.url, emoji: b.emoji?.name })) : void 0,
     files: m.attachments?.length ? m.attachments.map((a) => a.url) : void 0,
     reactions: m.reactions?.length ? m.reactions.map((r) => `${r.emoji.name} ${r.count}`) : void 0,
     reply_to: m.message_reference?.message_id,
@@ -42651,18 +42669,19 @@ function summary(m) {
 }
 function register4(t) {
   const tool = t("messages");
-  tool("read_messages", "Read messages of a channel or thread (newest last). Use before/after to page.", {
+  tool("read_messages", "Read messages of a channel or thread (newest last). Use before/after to page. Embeds are shortened unless full is true.", {
     server,
     channel: channelRef,
     limit: external_exports.number().int().min(1).max(100).default(25),
     before: external_exports.string().optional().describe("Message id"),
-    after: external_exports.string().optional().describe("Message id")
-  }, async ({ server: s, channel: ch, limit, before, after }) => {
+    after: external_exports.string().optional().describe("Message id"),
+    full: external_exports.boolean().optional().describe("Show embeds in full: every field's text, colours, footer, author, images and link buttons (to read a post completely or copy its design)")
+  }, async ({ server: s, channel: ch, limit, before, after, full }) => {
     const g = await guildId(s);
     const c = await channel(g, ch);
     const q = new URLSearchParams(defined({ limit: String(limit), before, after }));
     const msgs = await api("GET", `/channels/${c.id}/messages?${q}`);
-    return { channel: c.name, messages: msgs.reverse().map(summary) };
+    return { channel: c.name, messages: msgs.reverse().map((m) => summary(m, full)) };
   }, READ);
   tool("get_message", "Read one message in full (content, embeds, files, reactions).", {
     server,
@@ -42676,11 +42695,11 @@ function register4(t) {
   tool("list_pins", "List the pinned messages of a channel.", { server, channel: channelRef }, async ({ server: s, channel: ch }) => {
     const g = await guildId(s);
     const c = await channel(g, ch);
-    return (await api("GET", `/channels/${c.id}/pins`)).map(summary);
+    return (await api("GET", `/channels/${c.id}/pins`)).map((m) => summary(m));
   }, READ);
   tool(
     "send_message",
-    'Send a message to a channel or thread: text, embeds, files/images (local paths or URLs; show one inside an embed with image "attachment://name.png"), link buttons, a poll, a reply, and pings. Nobody is pinged unless listed in ping_roles/ping_users/ping_everyone.',
+    'Send a message to a channel or thread: text, embeds, files/images (local paths or URLs; show one inside an embed with image "attachment://name.png"), link buttons, a poll, a reply, and pings. Nobody is pinged unless listed in ping_roles/ping_users/ping_everyone. To correct a post without the "(edited)" mark, use replace: the new message is sent and the old ones are deleted, and its mentions show without notifying anyone again.',
     {
       server,
       channel: channelRef,
@@ -42696,14 +42715,35 @@ function register4(t) {
       silent: external_exports.boolean().optional().describe("Send without push notifications"),
       suppress_embeds: external_exports.boolean().optional().describe("Hide link previews"),
       pin: external_exports.boolean().optional(),
-      publish: external_exports.boolean().optional().describe("Announcement channels: send to following servers")
+      publish: external_exports.boolean().optional().describe("Announcement channels: send to following servers"),
+      replace: external_exports.array(external_exports.string()).min(1).max(100).optional().describe('Ids or links of earlier messages in this channel that this message replaces: they are deleted once it is sent (a clean repost, with no "(edited)" mark)'),
+      notify_again: external_exports.boolean().optional().describe("With replace: notify the pinged roles and members again (default: no, the mentions only show)"),
+      confirm: external_exports.boolean().optional().describe("With replace, when permanent actions need confirming: true to really send and delete; without it you get a preview")
     },
     async (a) => {
       if (!a.content && !a.embeds?.length && !a.files?.length && !a.poll) throw new DiscordError("Give content, embeds, files or a poll.");
       const g = await guildId(a.server);
       const c = await channel(g, a.channel);
+      const replaced = (a.replace || []).map((r) => {
+        const link = r.match(/channels\/\d+\/(\d+)\/(\d+)/);
+        if (link && link[1] !== c.id) throw new DiscordError(`Message ${link[2]} is in another channel; replace only works within ${c.name}.`);
+        const id = link ? link[2] : r.trim();
+        if (!/^\d{15,25}$/.test(id)) throw new DiscordError(`"${r}" is not a message id or link.`);
+        return id;
+      });
+      for (const id of replaced) await api("GET", `/channels/${c.id}/messages/${id}`);
+      if (replaced.length && config2.confirmDestructive && a.confirm !== true) {
+        return {
+          dry_run: true,
+          note: "Replacing deletes the old messages, which is permanent, so nothing was changed yet. Show this to the user and, once they agree, call again with confirm: true.",
+          would_send_to: c.name,
+          would_delete: replaced.map((id) => messageLink(g, c.id, id)),
+          notifies_again: !!a.notify_again
+        };
+      }
       const files = await loadFiles(a.files);
       const m = await mentions(g, a);
+      if (replaced.length && !a.notify_again) m.allowed_mentions = { parse: [], roles: [], users: [], replied_user: false };
       const flags = (a.silent ? 4096 : 0) | (a.suppress_embeds ? 4 : 0);
       const msg = await api("POST", `/channels/${c.id}/messages`, defined({
         content: m.content,
@@ -42725,7 +42765,25 @@ function register4(t) {
         if (c.type !== 5) throw new DiscordError(`Sent, but ${c.name} is not an announcement channel, so it was not published.`);
         await api("POST", `/channels/${c.id}/messages/${msg.id}/crosspost`);
       }
-      return { sent: true, channel: c.name, message_id: msg.id, link: messageLink(g, c.id, msg.id) };
+      let deleted;
+      if (replaced.length) {
+        const cutoff = Date.now() - 14 * 24 * 3600 * 1e3 + 6e4;
+        const age = (id) => Number(BigInt(id) >> 22n) + 14200704e5;
+        const recent = replaced.filter((id) => age(id) > cutoff);
+        if (recent.length >= 2) await api("POST", `/channels/${c.id}/messages/bulk-delete`, { messages: recent }, { reason: "Replaced by a new message" });
+        for (const id of recent.length >= 2 ? replaced.filter((id2) => !recent.includes(id2)) : replaced) {
+          await api("DELETE", `/channels/${c.id}/messages/${id}`, void 0, { reason: "Replaced by a new message" });
+        }
+        deleted = replaced.length;
+      }
+      return defined({
+        sent: true,
+        channel: c.name,
+        message_id: msg.id,
+        link: messageLink(g, c.id, msg.id),
+        replaced: deleted,
+        notified_again: replaced.length ? !!a.notify_again : void 0
+      });
     }
   );
   tool("edit_message", "Edit a message the bot sent: text, embeds, link buttons, files (replaces the attachments when given).", {
@@ -42854,7 +42912,7 @@ function register4(t) {
 }
 
 // src/tools/members.js
-var hex4 = (n) => n ? "#" + n.toString(16).padStart(6, "0") : void 0;
+var hex5 = (n) => n ? "#" + n.toString(16).padStart(6, "0") : void 0;
 function memberSummary(m, roleNames) {
   return defined({
     id: m.user.id,
@@ -42874,7 +42932,7 @@ function register5(t) {
     return roles.sort((a, b) => b.position - a.position).map((r) => defined({
       id: r.id,
       name: r.name,
-      color: hex4(r.color),
+      color: hex5(r.color),
       shown_separately: r.hoist || void 0,
       mentionable: r.mentionable || void 0,
       managed: r.managed || void 0,
@@ -44043,7 +44101,7 @@ function jobView(j, full = false) {
 
 // src/tools/blueprints.js
 var simplify2 = (s) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-var hex5 = (n) => n ? "#" + n.toString(16).padStart(6, "0") : void 0;
+var hex6 = (n) => n ? "#" + n.toString(16).padStart(6, "0") : void 0;
 var OverrideSchema = external_exports.object({ target: external_exports.string(), allow: external_exports.array(external_exports.string()).optional(), deny: external_exports.array(external_exports.string()).optional() });
 var ChannelSchema = external_exports.object({
   name: external_exports.string(),
@@ -44109,7 +44167,7 @@ async function blueprintFromDiscordTemplate(ref) {
         ...roles.find((r) => r.id === 0) ? [{ name: "@everyone", permissions: permNames(roles.find((r) => r.id === 0).permissions) }] : [],
         ...roles.filter((r) => r.id !== 0).map((r) => defined({
           name: r.name,
-          color: r.color ? hex5(r.color) : void 0,
+          color: r.color ? hex6(r.color) : void 0,
           hoist: r.hoist || void 0,
           mentionable: r.mentionable || void 0,
           permissions: permNames(r.permissions)
@@ -44173,7 +44231,7 @@ async function exportStructure(g) {
       { name: "@everyone", permissions: permNames(everyone.permissions) },
       ...roles.filter((r) => r.id !== g && !r.managed).sort((a, b) => b.position - a.position).map((r) => defined({
         name: r.name,
-        color: hex5(r.color),
+        color: hex6(r.color),
         hoist: r.hoist || void 0,
         mentionable: r.mentionable || void 0,
         permissions: permNames(r.permissions)

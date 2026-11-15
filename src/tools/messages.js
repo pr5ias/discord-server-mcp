@@ -4,6 +4,7 @@ import {
   loadFiles, attachmentsMeta, LinkButton, linkButtons, messageLink, DiscordError,
 } from "../discord.js";
 import { READ, DESTRUCTIVE } from "../tool.js";
+import { config } from "../config.js";
 
 const Poll = z.object({
   question: z.string(),
@@ -42,12 +43,28 @@ async function mentions(g, { content, ping_roles, ping_users, ping_everyone }) {
   };
 }
 
-function summary(m) {
+const hex = (n) => (n === undefined || n === null ? undefined : `#${n.toString(16).padStart(6, "0")}`);
+
+/** An embed with everything that is visible in Discord, so a post can be read in full or copied. */
+function fullEmbed(e) {
+  return defined({
+    title: e.title, url: e.url, description: e.description, color: hex(e.color),
+    author: e.author?.name, author_icon: e.author?.icon_url,
+    fields: e.fields?.map((f) => defined({ name: f.name, value: f.value, inline: f.inline || undefined })),
+    footer: e.footer?.text, footer_icon: e.footer?.icon_url, timestamp: e.timestamp,
+    image: e.image?.url, thumbnail: e.thumbnail?.url,
+  });
+}
+
+function summary(m, full = false) {
   return defined({
     id: m.id, author: m.author?.global_name || m.author?.username, bot: m.author?.bot || undefined, time: m.timestamp,
     edited: m.edited_timestamp || undefined, content: m.content || undefined,
-    embeds: m.embeds?.length ? m.embeds.map((e) => defined({ title: e.title, description: e.description?.slice(0, 300),
+    embeds: m.embeds?.length ? m.embeds.map((e) => full ? fullEmbed(e) : defined({ title: e.title, description: e.description?.slice(0, 300),
       image: e.image?.url, fields: e.fields?.map((f) => f.name) })) : undefined,
+    buttons: full && m.components?.length
+      ? m.components.flatMap((r) => r.components || []).map((b) => defined({ label: b.label, url: b.url, emoji: b.emoji?.name }))
+      : undefined,
     files: m.attachments?.length ? m.attachments.map((a) => a.url) : undefined,
     reactions: m.reactions?.length ? m.reactions.map((r) => `${r.emoji.name} ${r.count}`) : undefined,
     reply_to: m.message_reference?.message_id, pinned: m.pinned || undefined,
@@ -57,15 +74,16 @@ function summary(m) {
 
 export default function register(t) {
   const tool = t("messages");
-  tool("read_messages", "Read messages of a channel or thread (newest last). Use before/after to page.", {
+  tool("read_messages", "Read messages of a channel or thread (newest last). Use before/after to page. Embeds are shortened unless full is true.", {
     server, channel: channelRef, limit: z.number().int().min(1).max(100).default(25),
     before: z.string().optional().describe("Message id"), after: z.string().optional().describe("Message id"),
-  }, async ({ server: s, channel: ch, limit, before, after }) => {
+    full: z.boolean().optional().describe("Show embeds in full: every field's text, colours, footer, author, images and link buttons (to read a post completely or copy its design)"),
+  }, async ({ server: s, channel: ch, limit, before, after, full }) => {
     const g = await guildId(s);
     const c = await channel(g, ch);
     const q = new URLSearchParams(defined({ limit: String(limit), before, after }));
     const msgs = await api("GET", `/channels/${c.id}/messages?${q}`);
-    return { channel: c.name, messages: msgs.reverse().map(summary) };
+    return { channel: c.name, messages: msgs.reverse().map((m) => summary(m, full)) };
   }, READ);
 
   tool("get_message", "Read one message in full (content, embeds, files, reactions).", {
@@ -79,11 +97,11 @@ export default function register(t) {
   tool("list_pins", "List the pinned messages of a channel.", { server, channel: channelRef }, async ({ server: s, channel: ch }) => {
     const g = await guildId(s);
     const c = await channel(g, ch);
-    return (await api("GET", `/channels/${c.id}/pins`)).map(summary);
+    return (await api("GET", `/channels/${c.id}/pins`)).map((m) => summary(m));
   }, READ);
 
   tool("send_message",
-    'Send a message to a channel or thread: text, embeds, files/images (local paths or URLs; show one inside an embed with image "attachment://name.png"), link buttons, a poll, a reply, and pings. Nobody is pinged unless listed in ping_roles/ping_users/ping_everyone.', {
+    'Send a message to a channel or thread: text, embeds, files/images (local paths or URLs; show one inside an embed with image "attachment://name.png"), link buttons, a poll, a reply, and pings. Nobody is pinged unless listed in ping_roles/ping_users/ping_everyone. To correct a post without the "(edited)" mark, use replace: the new message is sent and the old ones are deleted, and its mentions show without notifying anyone again.', {
       server, channel: channelRef,
       content: z.string().optional(), embeds: z.array(Embed).max(10).optional(), files: z.array(FileInput).max(10).optional(),
       link_buttons: z.array(LinkButton).max(25).optional(), poll: Poll.optional(),
@@ -95,12 +113,33 @@ export default function register(t) {
       suppress_embeds: z.boolean().optional().describe("Hide link previews"),
       pin: z.boolean().optional(),
       publish: z.boolean().optional().describe("Announcement channels: send to following servers"),
+      replace: z.array(z.string()).min(1).max(100).optional()
+        .describe("Ids or links of earlier messages in this channel that this message replaces: they are deleted once it is sent (a clean repost, with no \"(edited)\" mark)"),
+      notify_again: z.boolean().optional().describe("With replace: notify the pinged roles and members again (default: no, the mentions only show)"),
+      confirm: z.boolean().optional().describe("With replace, when permanent actions need confirming: true to really send and delete; without it you get a preview"),
     }, async (a) => {
       if (!a.content && !a.embeds?.length && !a.files?.length && !a.poll) throw new DiscordError("Give content, embeds, files or a poll.");
       const g = await guildId(a.server);
       const c = await channel(g, a.channel);
+      const replaced = (a.replace || []).map((r) => {
+        const link = r.match(/channels\/\d+\/(\d+)\/(\d+)/);
+        if (link && link[1] !== c.id) throw new DiscordError(`Message ${link[2]} is in another channel; replace only works within ${c.name}.`);
+        const id = link ? link[2] : r.trim();
+        if (!/^\d{15,25}$/.test(id)) throw new DiscordError(`"${r}" is not a message id or link.`);
+        return id;
+      });
+      for (const id of replaced) await api("GET", `/channels/${c.id}/messages/${id}`); // fails early if one is missing
+      if (replaced.length && config.confirmDestructive && a.confirm !== true) {
+        return {
+          dry_run: true,
+          note: "Replacing deletes the old messages, which is permanent, so nothing was changed yet. Show this to the user and, once they agree, call again with confirm: true.",
+          would_send_to: c.name, would_delete: replaced.map((id) => messageLink(g, c.id, id)),
+          notifies_again: !!a.notify_again,
+        };
+      }
       const files = await loadFiles(a.files);
       const m = await mentions(g, a);
+      if (replaced.length && !a.notify_again) m.allowed_mentions = { parse: [], roles: [], users: [], replied_user: false };
       const flags = (a.silent ? 4096 : 0) | (a.suppress_embeds ? 4 : 0);
       const msg = await api("POST", `/channels/${c.id}/messages`, defined({
         content: m.content, allowed_mentions: m.allowed_mentions, embeds: a.embeds?.map(toEmbed),
@@ -114,7 +153,19 @@ export default function register(t) {
         if (c.type !== 5) throw new DiscordError(`Sent, but ${c.name} is not an announcement channel, so it was not published.`);
         await api("POST", `/channels/${c.id}/messages/${msg.id}/crosspost`);
       }
-      return { sent: true, channel: c.name, message_id: msg.id, link: messageLink(g, c.id, msg.id) };
+      let deleted;
+      if (replaced.length) {
+        const cutoff = Date.now() - 14 * 24 * 3600 * 1000 + 60000;
+        const age = (id) => Number(BigInt(id) >> 22n) + 1420070400000;
+        const recent = replaced.filter((id) => age(id) > cutoff);
+        if (recent.length >= 2) await api("POST", `/channels/${c.id}/messages/bulk-delete`, { messages: recent }, { reason: "Replaced by a new message" });
+        for (const id of recent.length >= 2 ? replaced.filter((id) => !recent.includes(id)) : replaced) {
+          await api("DELETE", `/channels/${c.id}/messages/${id}`, undefined, { reason: "Replaced by a new message" });
+        }
+        deleted = replaced.length;
+      }
+      return defined({ sent: true, channel: c.name, message_id: msg.id, link: messageLink(g, c.id, msg.id), replaced: deleted,
+        notified_again: replaced.length ? !!a.notify_again : undefined });
     });
 
   tool("edit_message", "Edit a message the bot sent: text, embeds, link buttons, files (replaces the attachments when given).", {

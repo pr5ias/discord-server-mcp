@@ -91,6 +91,30 @@ await check("send_message", { channel: "announcements", content: "<@&40000000000
   assert.equal(writes[0].body.content, "<@&400000000000000003>"); // written in the text: not added twice
   assert.deepEqual(writes[0].body.allowed_mentions.roles, ["400000000000000003"]);
 });
+await check("send_message", { channel: "announcements", content: "New", ping_roles: ["Updates Ping"], replace: ["1300000000000000000000"] }, ({ writes, data }) => {
+  assert.equal(writes.length, 0, "no confirm: nothing sent or deleted");
+  assert.equal(data.dry_run, true);
+  assert.match(data.would_delete[0], /1300000000000000000000$/);
+});
+await check("send_message", { channel: "announcements", content: "New", ping_roles: ["Updates Ping"], confirm: true,
+  replace: ["1300000000000000000000", "https://discord.com/channels/100000000000000000/200000000000000002/1300000000000000000001"] }, ({ writes, data }) => {
+  assert.equal(writes[0].method, "POST");
+  assert.equal(writes[0].body.content, "<@&400000000000000003>\nNew"); // the mention still shows
+  assert.deepEqual(writes[0].body.allowed_mentions.roles, []); // but nobody is notified again
+  assert.ok(writes[1].path.endsWith("/bulk-delete"), "old messages deleted after sending");
+  assert.deepEqual(writes[1].body.messages, ["1300000000000000000000", "1300000000000000000001"]);
+  assert.equal(data.replaced, 2);
+  assert.equal(data.notified_again, false);
+});
+await check("send_message", { channel: "announcements", content: "New", ping_roles: ["Updates Ping"], confirm: true, notify_again: true,
+  replace: ["1300000000000000000000"] }, ({ writes }) => {
+  assert.deepEqual(writes[0].body.allowed_mentions.roles, ["400000000000000003"]);
+  assert.equal(writes[1].method, "DELETE");
+});
+await check("send_message", { channel: "announcements", content: "New", confirm: true, replace: ["666600000000000000"] }, ({ isError, writes }) => {
+  assert.ok(isError, "a missing message stops it before anything is sent");
+  assert.equal(writes.length, 0);
+});
 await check("send_message", { channel: "general", content: "no pings @everyone" }, ({ writes }) => {
   assert.deepEqual(writes[0].body.allowed_mentions.parse, []);
 });
@@ -242,6 +266,16 @@ await check("add_bot", { method: "browser", label: "Page Bot" }, ({ data }) => {
 }
 await check("read_messages", { channel: "general", limit: 5 }, ({ data }) => {
   assert.equal(data.messages[0].content, "hi");
+  assert.equal(data.messages[0].embeds[0].description.length, 300); // shortened by default
+  assert.deepEqual(data.messages[0].embeds[0].fields, ["Field"]);
+});
+await check("read_messages", { channel: "general", limit: 5, full: true }, ({ data }) => {
+  const e = data.messages[0].embeds[0];
+  assert.equal(e.description.length, 400);
+  assert.equal(e.color, "#c9a227");
+  assert.equal(e.footer, "Blog #1");
+  assert.deepEqual(e.fields, [{ name: "Field", value: "Field text", inline: true }]);
+  assert.equal(data.messages[0].buttons[0].url, "https://example.com");
 });
 await check("get_member", { member: "bot" }, ({ data }) => assert.equal(data.username, "TestBot"));
 await check("send_message", { channel: "nonexistent", content: "x" }, ({ isError, text }) => {
