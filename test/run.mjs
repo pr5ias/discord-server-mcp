@@ -302,6 +302,10 @@ await check("collect_feedback", { anonymize: false, include_replies: false }, ({
   assert.equal(data.replies, 0);
   assert.ok(data.items.some((i) => i.author === "Alice"));
 });
+await check("collect_feedback", { include_bots: true, anonymize: false }, ({ data }) => {
+  assert.equal(data.replies, 4, "bot messages counted when asked");
+  assert.ok(data.items.some((i) => i.author === "Dana"), "a relayed post keeps the author named in its embed");
+});
 await check("feedback_report", { file: collectedFile }, ({ data }) => {
   assert.equal(data.totals.posts, 2);
   assert.equal(data.by_area.bugs, 2);

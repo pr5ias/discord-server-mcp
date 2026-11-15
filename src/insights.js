@@ -26,6 +26,8 @@ const KIND_WORDS = new Set(Object.values(AREAS).flat().concat(["mods", "modpacks
 const strip = (s) => (s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/\p{Extended_Pictographic}|️|[^\p{L}\p{N}\s'-]/gu, " ")
   .toLowerCase().replace(/\s+/g, " ").trim();
 const words = (s) => strip(s).split(/[\s_-]+/).filter(Boolean);
+/** Words of a post: like words(), but "co-op" and "don't" stay whole. */
+const textWords = (s) => strip(s).split(/[\s_]+/).map((w) => w.replace(/^[-']+|[-']+$/g, "")).filter(Boolean);
 
 /** The area of a channel from its name, topic, type and category. */
 export function areaOf(ch, categoryName = "") {
@@ -186,7 +188,8 @@ const POSITIVE = ["love", "loved", "great", "awesome", "amazing", "good", "nice"
   "genial", "bueno", "encanta", "gracias", "super", "toll", "gut", "genial"];
 const NEGATIVE = ["bug", "bugs", "crash", "crashes", "crashing", "broken", "break", "breaks", "bad", "worse", "worst", "hate", "lag", "laggy",
   "slow", "boring", "annoying", "useless", "error", "errors", "fail", "fails", "failed", "missing", "terrible", "awful", "unplayable", "freeze",
-  "freezes", "frozen", "stuck", "confusing", "disappointed", "disappointing", "expensive", "grindy", "unbalanced", "op", "overpowered", "problem",
+  "freezes", "frozen", "stuck", "confusing", "disappointed", "disappointing", "expensive", "grindy", "unbalanced", "overpowered", "problem",
+  "exploit", "exploits", "corrupted", "corrupt", "lost", "unstable", "does not start", "doesn't start", "won't start", "nao abre", "nao arranca",
   "problems", "issue", "issues", "doesn't", "doesnt", "can't", "cant", "won't", "wont", "not working", "stutter", "fps drop", "glitch",
   "mau", "ma", "pessimo", "horrivel", "lento", "chato", "erro", "erros", "problema", "problemas", "partido", "travou", "trava", "nao funciona",
   "falha", "falhou", "detesto", "odeio", "irritante", "confuso", "desiludido", "malo", "roto", "schlecht", "kaputt"];
@@ -194,7 +197,7 @@ const NEGATORS = ["not", "no", "never", "nao", "nunca", "nem", "isn't", "isnt", 
 
 /** -1 … 1 from a small word list (English and Portuguese, some Spanish and German). A hint, not a verdict. */
 export function sentiment(text) {
-  const ws = words(text);
+  const ws = textWords(text);
   const joined = " " + ws.join(" ") + " ";
   let pos = 0, neg = 0;
   ws.forEach((w, i) => {
@@ -220,7 +223,7 @@ const STOP = new Set(("a an the and or but if then so to of in on at for from by
 export function themes(items, limit = 15) {
   const one = new Map(), two = new Map();
   for (const it of items) {
-    const ws = words(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
+    const ws = textWords(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
     const seen1 = new Set(ws);
     const seen2 = new Set(ws.slice(1).map((w, i) => `${ws[i]} ${w}`));
     for (const w of seen1) one.set(w, (one.get(w) || 0) + 1);
@@ -230,27 +233,40 @@ export function themes(items, limit = 15) {
   return { phrases: top(two), words: top(one) };
 }
 
-/** Groups items that look like the same request or problem (they share two or more significant words in the title). */
 const stem = (w) => w.replace(/(?:ings|ing|ed|es|s)$/, (end, offset) => (offset >= 3 ? "" : end));
 
+/**
+ * Groups posts of the same area that look like the same request or problem: they share two significant words
+ * (title and start of the text, project names left out), or one longer word that is in both titles ("co-op").
+ */
 export function similarGroups(items) {
-  const sig = (it) => new Set(words(it.title || it.text?.slice(0, 80)).filter((w) => w.length >= 3 && !STOP.has(w)).map(stem));
+  const projectWords = new Set(items.flatMap((i) => i.projects || []).flatMap((p) => textWords(p)).map(stem));
+  const clean = (s) => textWords(s || "").filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d+$/.test(w)).map(stem).filter((w) => !projectWords.has(w));
+  const sig = (it) => new Set(clean(`${it.title || ""} ${(it.text || "").slice(0, 120)}`));
+  const titleSig = (it) => new Set(clean(it.title || (it.text || "").slice(0, 80)));
   const posts = items.filter((i) => i.kind !== "reply");
   const groups = [];
   const used = new Set();
   posts.forEach((a, i) => {
     if (used.has(i)) return;
-    const sa = sig(a);
+    const sa = sig(a), ta = titleSig(a);
     const g = [a];
     posts.forEach((b, j) => {
-      if (j <= i || used.has(j)) return;
+      if (j <= i || used.has(j) || b.area !== a.area) return;
       const shared = [...sig(b)].filter((w) => sa.has(w));
-      if (shared.length >= 2) { g.push(b); used.add(j); }
+      const inTitles = [...titleSig(b)].filter((w) => ta.has(w) && w.length >= 4);
+      if (shared.length >= 2 || inTitles.length >= 1) { g.push(b); used.add(j); }
     });
-    if (g.length > 1) { used.add(i); groups.push({ about: [...sa].filter((w) => g.every((x) => sig(x).has(w))).join(" ") || (a.title || "").slice(0, 60), posts: g.map((x) => x.title || x.text.slice(0, 80)) }); }
+    if (g.length > 1) {
+      used.add(i);
+      const common = [...sa].filter((w) => g.every((x) => sig(x).has(w)));
+      groups.push({ about: common.join(" ") || (a.title || "").slice(0, 60), area: a.area, posts: g.map((x) => x.title || x.text.slice(0, 80)) });
+    }
   });
   return groups;
 }
+
+const label = (i) => i.title || (i.text || "").replace(/\s+/g, " ").slice(0, 80);
 
 /** The numbers and lists of a feedback report. */
 export function report(items, map) {
@@ -280,10 +296,10 @@ export function report(items, map) {
       sentiment: avg(items.map((i) => i.sentiment)) },
     by_area: by("area"), by_status: by("status"), by_tag: by("tags"),
     projects,
-    most_discussed: [...posts].sort((a, b) => score(b) - score(a)).slice(0, 8).map((i) => defined({ title: i.title, area: i.area, projects: i.projects, reactions: i.reactions, replies: i.replies, link: i.link })),
+    most_discussed: [...posts].sort((a, b) => score(b) - score(a)).slice(0, 8).map((i) => defined({ title: label(i), area: i.area, projects: i.projects, reactions: i.reactions, replies: i.replies, link: i.link })),
     most_negative: posts.filter((i) => i.sentiment < 0).sort((a, b) => a.sentiment - b.sentiment || score(b) - score(a)).slice(0, 8)
-      .map((i) => defined({ title: i.title, area: i.area, projects: i.projects, sentiment: i.sentiment, link: i.link })),
-    open_bugs: posts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).map((i) => defined({ title: i.title, projects: i.projects, status: i.status, link: i.link })),
+      .map((i) => defined({ title: label(i), area: i.area, projects: i.projects, sentiment: i.sentiment, link: i.link })),
+    open_bugs: posts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).map((i) => defined({ title: label(i), projects: i.projects, status: i.status, link: i.link })),
     repeated: similarGroups(posts),
     themes: themes(items),
     map: map ? mermaidMap(map) : undefined,

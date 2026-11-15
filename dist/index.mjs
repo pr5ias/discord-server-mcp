@@ -452,9 +452,9 @@ var require_codegen = __commonJS({
       }
     };
     var Label = class extends Node {
-      constructor(label) {
+      constructor(label2) {
         super();
-        this.label = label;
+        this.label = label2;
         this.names = {};
       }
       render({ _n }) {
@@ -462,14 +462,14 @@ var require_codegen = __commonJS({
       }
     };
     var Break = class extends Node {
-      constructor(label) {
+      constructor(label2) {
         super();
-        this.label = label;
+        this.label = label2;
         this.names = {};
       }
       render({ _n }) {
-        const label = this.label ? ` ${this.label}` : "";
-        return `break${label};` + _n;
+        const label2 = this.label ? ` ${this.label}` : "";
+        return `break${label2};` + _n;
       }
     };
     var Throw = class extends Node {
@@ -881,12 +881,12 @@ var require_codegen = __commonJS({
         return this._endBlockNode(For);
       }
       // `label` statement
-      label(label) {
-        return this._leafNode(new Label(label));
+      label(label2) {
+        return this._leafNode(new Label(label2));
       }
       // `break` statement
-      break(label) {
-        return this._leafNode(new Break(label));
+      break(label2) {
+        return this._leafNode(new Break(label2));
       }
       // `return` statement
       return(value) {
@@ -24216,9 +24216,9 @@ function codePointLengthVar(doc, ctx, accessor, inDoubt) {
   doc.write(`const ${v} = typeof ${accessor} === "string" && ${inDoubt} ? ${cpLen}(${accessor}) : ${accessor}.length;`);
   return v;
 }
-function numericOperand(value, label) {
+function numericOperand(value, label2) {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new ZodCompileUnsupportedError(`${label} bound of type ${typeof value}`);
+    throw new ZodCompileUnsupportedError(`${label2} bound of type ${typeof value}`);
   }
   return `${value}`;
 }
@@ -44684,7 +44684,7 @@ input{width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px
 button{background:#1fa37a;color:#fff;border:0;border-radius:8px;padding:12px 18px;font-size:15px;cursor:pointer;width:100%}
 .ok{color:#57f287}.err{color:#ed4245}code{background:#1e1f22;padding:2px 6px;border-radius:4px}
 </style></head><body><main>${body}</main></body></html>`;
-function startTokenPage(onToken, { label = "" } = {}) {
+function startTokenPage(onToken, { label: label2 = "" } = {}) {
   const secret = randomBytes3(16).toString("hex");
   let resolveDone;
   const done = new Promise((r) => resolveDone = r);
@@ -44701,7 +44701,7 @@ function startTokenPage(onToken, { label = "" } = {}) {
 <p>Paste the bot's token (Developer Portal \u2192 your app \u2192 <b>Bot</b> \u2192 <b>Reset Token</b> \u2192 <b>Copy</b>).
 It is saved on this computer only and never goes into the chat.</p>
 <form method="post"><input name="token" type="password" autocomplete="off" placeholder="Bot token" required autofocus>
-<input name="label" type="text" placeholder="Name for this bot (optional)" value="${label.replace(/"/g, "&quot;")}">
+<input name="label" type="text" placeholder="Name for this bot (optional)" value="${label2.replace(/"/g, "&quot;")}">
 <button>Save the bot</button></form>`));
       return;
     }
@@ -44859,7 +44859,7 @@ async function setupCheck(_args, { mcp } = {}) {
   for (const x of await botsWithServers()) bots.push(await checkBot(x));
   return { ok: bots.every((b) => b.ok), bots, settings };
 }
-async function saveNewBot(rawToken, label) {
+async function saveNewBot(rawToken, label2) {
   const token = rawToken.trim().replace(/^Bot\s+/i, "");
   if (token.length < 50) return { ok: false, message: "That does not look like a bot token (it is about 70 characters). Copy it again from the Bot tab." };
   let user;
@@ -44868,7 +44868,7 @@ async function saveNewBot(rawToken, label) {
   } catch {
     return { ok: false, message: "Discord did not accept that token. Click Reset Token again, copy the new one and retry." };
   }
-  const bot = addBot({ token, id: user.id, name: label || user.username });
+  const bot = addBot({ token, id: user.id, name: label2 || user.username });
   if (config2.bots.length === 1) saveSettings({ DISCORD_ACTIVE_BOT: bot.id });
   startGateway();
   const servers = await api("GET", "/users/@me/guilds", void 0, { token }).catch(() => []);
@@ -44910,7 +44910,7 @@ function register9(t) {
       label: external_exports.string().optional().describe("Name to remember the bot by; default: the bot's username"),
       method: external_exports.enum(["box", "browser"]).default("box").describe("browser = skip the box and give the page link straight away")
     },
-    async ({ label, method }, { mcp }) => {
+    async ({ label: label2, method }, { mcp }) => {
       if (method === "box" && mcp.server.getClientCapabilities()?.elicitation) {
         let answer;
         try {
@@ -44922,15 +44922,15 @@ function register9(t) {
           answer = null;
         }
         if (answer?.action === "accept" && answer.content?.token) {
-          const result = await saveNewBot(String(answer.content.token), label);
+          const result = await saveNewBot(String(answer.content.token), label2);
           if (result.ok) return result.report;
           return { added: false, note: result.message };
         }
       }
       const pageResult = await startTokenPage(async (token, pageLabel) => {
-        const r = await saveNewBot(token, pageLabel || label);
+        const r = await saveNewBot(token, pageLabel || label2);
         return { ok: r.ok, message: r.ok ? `${r.report.bot} is connected` : r.message };
-      }, { label: label || "" });
+      }, { label: label2 || "" });
       return {
         added: false,
         open_this_link: pageResult.url,
@@ -46037,9 +46037,9 @@ ${tx("verify_click")}` : rulesCh ? text("verify_with_channel", { lang: a.languag
       if (callContext.getStore()?.dryRun) return { would_set: entry };
       if (c.type === 15) {
         const locale = await guildLocale(g);
-        const label = (k) => text(`log_kind_${k}`, { lang: a.language, locale, texts: a.texts });
+        const label2 = (k) => text(`log_kind_${k}`, { lang: a.language, locale, texts: a.texts });
         const tags = [...c.available_tags || []];
-        for (const k of a.events) if (!tags.some((x) => x.name === label(k))) tags.push({ name: label(k), emoji_name: { messages: "\u{1F4AC}", members: "\u{1F465}", moderation: "\u{1F6E1}\uFE0F", server: "\u2699\uFE0F" }[k] });
+        for (const k of a.events) if (!tags.some((x) => x.name === label2(k))) tags.push({ name: label2(k), emoji_name: { messages: "\u{1F4AC}", members: "\u{1F465}", moderation: "\u{1F6E1}\uFE0F", server: "\u2699\uFE0F" }[k] });
         const updated = await api("PATCH", `/channels/${c.id}`, {
           available_tags: tags.slice(0, 20),
           default_forum_layout: 1,
@@ -46047,7 +46047,7 @@ ${tx("verify_click")}` : rulesCh ? text("verify_with_channel", { lang: a.languag
           topic: c.topic || text("log_forum_topic", { lang: a.language, locale, texts: a.texts })
         });
         entry.forum = true;
-        entry.tags = Object.fromEntries(a.events.map((k) => [k, updated.available_tags.find((x) => x.name === label(k))?.id]));
+        entry.tags = Object.fromEntries(a.events.map((k) => [k, updated.available_tags.find((x) => x.name === label2(k))?.id]));
         const old = automations().mod_logs.find((l) => l.guild === g && l.bot === bot.id && l.channel === c.id);
         if (old?.threads) entry.threads = old.threads;
       }
@@ -46371,6 +46371,7 @@ var STATUS_WORDS = [
 var KIND_WORDS = new Set(Object.values(AREAS).flat().concat(["mods", "modpacks", "modpack", "other", "misc", "general"]));
 var strip = (s) => (s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(new RegExp("\\p{Extended_Pictographic}|\uFE0F|[^\\p{L}\\p{N}\\s'-]", "gu"), " ").toLowerCase().replace(/\s+/g, " ").trim();
 var words = (s) => strip(s).split(/[\s_-]+/).filter(Boolean);
+var textWords = (s) => strip(s).split(/[\s_]+/).map((w) => w.replace(/^[-']+|[-']+$/g, "")).filter(Boolean);
 function areaOf(ch, categoryName = "") {
   if (ch.type === 2 || ch.type === 13) return "voice";
   if (/^ticket[-_ ]?\d+/i.test(strip(ch.name).replace(/ /g, "-")) || /^ticket-/.test(strip(ch.name))) return "tickets";
@@ -46625,9 +46626,19 @@ var NEGATIVE = [
   "expensive",
   "grindy",
   "unbalanced",
-  "op",
   "overpowered",
   "problem",
+  "exploit",
+  "exploits",
+  "corrupted",
+  "corrupt",
+  "lost",
+  "unstable",
+  "does not start",
+  "doesn't start",
+  "won't start",
+  "nao abre",
+  "nao arranca",
   "problems",
   "issue",
   "issues",
@@ -46669,7 +46680,7 @@ var NEGATIVE = [
 ];
 var NEGATORS = ["not", "no", "never", "nao", "nunca", "nem", "isn't", "isnt", "wasn't", "wasnt", "don't", "dont"];
 function sentiment(text2) {
-  const ws = words(text2);
+  const ws = textWords(text2);
   const joined = " " + ws.join(" ") + " ";
   let pos = 0, neg = 0;
   ws.forEach((w, i) => {
@@ -46685,7 +46696,7 @@ var STOP = new Set("a an the and or but if then so to of in on at for from by wi
 function themes(items, limit = 15) {
   const one = /* @__PURE__ */ new Map(), two = /* @__PURE__ */ new Map();
   for (const it of items) {
-    const ws = words(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
+    const ws = textWords(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
     const seen1 = new Set(ws);
     const seen2 = new Set(ws.slice(1).map((w, i) => `${ws[i]} ${w}`));
     for (const w of seen1) one.set(w, (one.get(w) || 0) + 1);
@@ -46696,29 +46707,35 @@ function themes(items, limit = 15) {
 }
 var stem = (w) => w.replace(/(?:ings|ing|ed|es|s)$/, (end, offset) => offset >= 3 ? "" : end);
 function similarGroups(items) {
-  const sig = (it) => new Set(words(it.title || it.text?.slice(0, 80)).filter((w) => w.length >= 3 && !STOP.has(w)).map(stem));
+  const projectWords = new Set(items.flatMap((i) => i.projects || []).flatMap((p) => textWords(p)).map(stem));
+  const clean = (s) => textWords(s || "").filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d+$/.test(w)).map(stem).filter((w) => !projectWords.has(w));
+  const sig = (it) => new Set(clean(`${it.title || ""} ${(it.text || "").slice(0, 120)}`));
+  const titleSig = (it) => new Set(clean(it.title || (it.text || "").slice(0, 80)));
   const posts = items.filter((i) => i.kind !== "reply");
   const groups = [];
   const used = /* @__PURE__ */ new Set();
   posts.forEach((a, i) => {
     if (used.has(i)) return;
-    const sa = sig(a);
+    const sa = sig(a), ta = titleSig(a);
     const g = [a];
     posts.forEach((b, j) => {
-      if (j <= i || used.has(j)) return;
+      if (j <= i || used.has(j) || b.area !== a.area) return;
       const shared = [...sig(b)].filter((w) => sa.has(w));
-      if (shared.length >= 2) {
+      const inTitles = [...titleSig(b)].filter((w) => ta.has(w) && w.length >= 4);
+      if (shared.length >= 2 || inTitles.length >= 1) {
         g.push(b);
         used.add(j);
       }
     });
     if (g.length > 1) {
       used.add(i);
-      groups.push({ about: [...sa].filter((w) => g.every((x) => sig(x).has(w))).join(" ") || (a.title || "").slice(0, 60), posts: g.map((x) => x.title || x.text.slice(0, 80)) });
+      const common = [...sa].filter((w) => g.every((x) => sig(x).has(w)));
+      groups.push({ about: common.join(" ") || (a.title || "").slice(0, 60), area: a.area, posts: g.map((x) => x.title || x.text.slice(0, 80)) });
     }
   });
   return groups;
 }
+var label = (i) => i.title || (i.text || "").replace(/\s+/g, " ").slice(0, 80);
 function report(items, map2) {
   const posts = items.filter((i) => i.kind !== "reply");
   const by = (key) => {
@@ -46754,9 +46771,9 @@ function report(items, map2) {
     by_status: by("status"),
     by_tag: by("tags"),
     projects,
-    most_discussed: [...posts].sort((a, b) => score(b) - score(a)).slice(0, 8).map((i) => defined2({ title: i.title, area: i.area, projects: i.projects, reactions: i.reactions, replies: i.replies, link: i.link })),
-    most_negative: posts.filter((i) => i.sentiment < 0).sort((a, b) => a.sentiment - b.sentiment || score(b) - score(a)).slice(0, 8).map((i) => defined2({ title: i.title, area: i.area, projects: i.projects, sentiment: i.sentiment, link: i.link })),
-    open_bugs: posts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).map((i) => defined2({ title: i.title, projects: i.projects, status: i.status, link: i.link })),
+    most_discussed: [...posts].sort((a, b) => score(b) - score(a)).slice(0, 8).map((i) => defined2({ title: label(i), area: i.area, projects: i.projects, reactions: i.reactions, replies: i.replies, link: i.link })),
+    most_negative: posts.filter((i) => i.sentiment < 0).sort((a, b) => a.sentiment - b.sentiment || score(b) - score(a)).slice(0, 8).map((i) => defined2({ title: label(i), area: i.area, projects: i.projects, sentiment: i.sentiment, link: i.link })),
+    open_bugs: posts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).map((i) => defined2({ title: label(i), projects: i.projects, status: i.status, link: i.link })),
     repeated: similarGroups(posts),
     themes: themes(items),
     map: map2 ? mermaidMap(map2) : void 0
@@ -46945,7 +46962,9 @@ async function collect(a) {
   const skipped = [];
   const active2 = (await api("GET", `/guilds/${g}/threads/active`)).threads || [];
   const wanted = (it) => !a.project || it.projects.some((p) => p.toLowerCase() === a.project.toLowerCase());
-  const person = (m) => who2(m.author.id, m.author.global_name || m.author.username);
+  const relayed = (m) => m.author.bot && !m.webhook_id ? m.embeds?.find((e) => e.author?.name)?.author.name : void 0;
+  const person = (m) => relayed(m) ? who2(`relay:${relayed(m)}`, relayed(m)) : who2(m.author.id, m.author.global_name || m.author.username);
+  const counts = (m) => human(m) || a.include_bots && m.author.bot;
   const fresh = (m) => !since || Date.parse(m.timestamp) >= since;
   for (const c of targets) {
     const info2 = row(c);
@@ -46953,7 +46972,7 @@ async function collect(a) {
       if (c.type === 15 || c.type === 16) {
         const tagName = Object.fromEntries((c.available_tags || []).map((t) => [t.id, t.name]));
         for (const t of await forumThreads(g, c.id, a.max_posts, active2)) {
-          const msgs = (await messages(t.id, a.max_replies + 1)).filter((m) => human(m) || m.id === t.id);
+          const msgs = (await messages(t.id, a.max_replies + 1)).filter((m) => counts(m) || m.id === t.id);
           const first = msgs.find((m) => m.id === t.id) || msgs[0];
           if (!first || !fresh(first)) continue;
           const tags = (t.applied_tags || []).map((id) => tagName[id]).filter(Boolean);
@@ -46976,7 +46995,7 @@ async function collect(a) {
           if (!wanted(post)) continue;
           items.push(post);
           if (a.include_replies) {
-            for (const m of msgs.filter((x) => x.id !== first.id && human(x) && textOf(x))) {
+            for (const m of msgs.filter((x) => x.id !== first.id && counts(x) && textOf(x))) {
               items.push({
                 kind: "reply",
                 area: post.area,
@@ -46993,7 +47012,7 @@ async function collect(a) {
           }
         }
       } else {
-        const msgs = (await messages(c.id, a.max_messages)).filter((m) => human(m) && textOf(m) && fresh(m));
+        const msgs = (await messages(c.id, a.max_messages)).filter((m) => counts(m) && textOf(m) && fresh(m));
         const ticket = info2.area === "tickets";
         msgs.forEach((m, i) => {
           const it = {
@@ -47082,6 +47101,7 @@ function register13(t) {
     max_messages: external_exports.number().int().min(1).max(2e3).default(200).describe("Most messages per text channel or ticket"),
     include_replies: external_exports.boolean().default(true),
     include_closed_tickets: external_exports.boolean().default(true).describe("Also read the transcripts of tickets closed by this tool's ticket system"),
+    include_bots: external_exports.boolean().default(false).describe("Also count messages from bots, e.g. a bot that relays reviews or form answers (the author named in its embed is used)"),
     anonymize: external_exports.boolean().default(true).describe("Name people member-1, member-2\u2026 instead of by their username (default)")
   };
   tool(

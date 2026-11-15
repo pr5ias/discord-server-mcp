@@ -105,6 +105,7 @@ globalThis.fetch = async (url, init = {}) => {
     return json(tm[1].endsWith("1")
       ? [{ id: "720000000000000002", author: carol, content: "Same here, the game crashes every time", timestamp: "2026-11-02T10:00:00Z", reactions: [] },
          { id: "720000000000000003", author: { id: "800000000000000009", username: "Feedback Form", bot: true }, webhook_id: "800000000000000009", content: "Form answer: crashes for me too", timestamp: "2026-11-02T11:00:00Z" },
+         { id: "720000000000000004", author: bot, content: "", embeds: [{ author: { name: "Dana" }, description: "Relayed review: crashes on load" }], timestamp: "2026-11-02T12:00:00Z" },
          { id: "720000000000000001", author: bot, content: "Thanks for the post!", timestamp: "2026-11-01T10:00:01Z" },
          { id: "710000000000000001", author: user, content: "The game crashes when I open the map. Broken since 1.2", timestamp: "2026-11-01T10:00:00Z", reactions: [{ emoji: { name: "👍" }, count: 4 }] }]
       : [{ id: "710000000000000002", author: carol, content: "Map crash after the update, please fix", timestamp: "2026-11-03T10:00:00Z", reactions: [{ emoji: { name: "👍" }, count: 1 }] }]);

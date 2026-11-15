@@ -68,7 +68,10 @@ export async function collect(a) {
   const skipped = [];
   const active = (await api("GET", `/guilds/${g}/threads/active`)).threads || [];
   const wanted = (it) => !a.project || it.projects.some((p) => p.toLowerCase() === a.project.toLowerCase());
-  const person = (m) => who(m.author.id, m.author.global_name || m.author.username);
+  // Bots that relay feedback (review feeds, forms) usually name the real author in the embed.
+  const relayed = (m) => (m.author.bot && !m.webhook_id ? m.embeds?.find((e) => e.author?.name)?.author.name : undefined);
+  const person = (m) => (relayed(m) ? who(`relay:${relayed(m)}`, relayed(m)) : who(m.author.id, m.author.global_name || m.author.username));
+  const counts = (m) => human(m) || (a.include_bots && m.author.bot);
   const fresh = (m) => !since || Date.parse(m.timestamp) >= since;
 
   for (const c of targets) {
@@ -77,7 +80,7 @@ export async function collect(a) {
       if (c.type === 15 || c.type === 16) {
         const tagName = Object.fromEntries((c.available_tags || []).map((t) => [t.id, t.name]));
         for (const t of await forumThreads(g, c.id, a.max_posts, active)) {
-          const msgs = (await messages(t.id, a.max_replies + 1)).filter((m) => human(m) || m.id === t.id);
+          const msgs = (await messages(t.id, a.max_replies + 1)).filter((m) => counts(m) || m.id === t.id);
           const first = msgs.find((m) => m.id === t.id) || msgs[0];
           if (!first || !fresh(first)) continue;
           const tags = (t.applied_tags || []).map((id) => tagName[id]).filter(Boolean);
@@ -90,14 +93,14 @@ export async function collect(a) {
           if (!wanted(post)) continue;
           items.push(post);
           if (a.include_replies) {
-            for (const m of msgs.filter((x) => x.id !== first.id && human(x) && textOf(x))) {
+            for (const m of msgs.filter((x) => x.id !== first.id && counts(x) && textOf(x))) {
               items.push({ kind: "reply", area: post.area, channel: c.name, title: post.title, projects: post.projects, text: textOf(m), author: person(m),
                 reactions: reactionsOf(m), created: m.timestamp, link: messageLink(g, t.id, m.id) });
             }
           }
         }
       } else {
-        const msgs = (await messages(c.id, a.max_messages)).filter((m) => human(m) && textOf(m) && fresh(m));
+        const msgs = (await messages(c.id, a.max_messages)).filter((m) => counts(m) && textOf(m) && fresh(m));
         const ticket = info.area === "tickets";
         msgs.forEach((m, i) => {
           const it = {
@@ -165,6 +168,7 @@ export default function register(t) {
     max_messages: z.number().int().min(1).max(2000).default(200).describe("Most messages per text channel or ticket"),
     include_replies: z.boolean().default(true),
     include_closed_tickets: z.boolean().default(true).describe("Also read the transcripts of tickets closed by this tool's ticket system"),
+    include_bots: z.boolean().default(false).describe("Also count messages from bots, e.g. a bot that relays reviews or form answers (the author named in its embed is used)"),
     anonymize: z.boolean().default(true).describe("Name people member-1, member-2… instead of by their username (default)"),
   };
 
