@@ -46508,7 +46508,8 @@ function mapServer(channels) {
 }
 var TYPE = { 0: "text", 2: "voice", 5: "announcement", 13: "stage", 15: "forum", 16: "media" };
 function mermaidMap(map2, title = "Server") {
-  const id = (s) => "n" + Buffer.from(s).toString("hex").slice(0, 16);
+  const ids = /* @__PURE__ */ new Map();
+  const id = (s) => ids.has(s) ? ids.get(s) : (ids.set(s, `n${ids.size + 1}`), ids.get(s));
   const esc3 = (s) => s.replace(/"/g, "'");
   const lines = ["flowchart LR", `  S["${esc3(title)}"]`];
   for (const [area, list] of Object.entries(map2.areas)) {
@@ -46692,11 +46693,12 @@ function sentiment(text2) {
   if (!pos && !neg) return 0;
   return Math.round((pos - neg) / (pos + neg) * 100) / 100;
 }
-var STOP = new Set("a an the and or but if then so to of in on at for from by with without about as is are was were be been being it its this that these those i me my we our you your he she they them their his her there here what which who when where why how all any some more most very can could would should will just also too not no yes do does did done have has had get got make made like one two out up down over again still even only really much many lot lots thing things o a os as um uma uns umas de do da dos das em no na nos nas por para com sem que e ou mas se entao muito muita muitos muitas mais menos ja ainda tambem so eu tu ele ela nos vos eles elas meu minha teu tua seu sua isto isso aquilo este esta esse essa ao aos pelo pela como quando onde porque porque qual quais ter tem tenho foi era sao ser estar esta estou fazer faz fiz vai vou pode posso nao sim el la los las un una y o pero con sin por para es son der die das und ist nicht please pls hi hello hey thanks thank ok okay im i'm it's dont don't doesn't can't cant".split(" "));
+var STOP = new Set("a an the and or but if then so to of in on at for from by with without about as is are was were be been being it its this that these those i me my we our you your he she they them their his her there here what which who when where why how all any some more most very can could would should will just also too not no yes do does did done have has had get got make made like one two out up down over again still even only really much many lot lots thing things o a os as um uma uns umas de do da dos das em no na nos nas por para com sem que e ou mas se entao muito muita muitos muitas mais menos ja ainda tambem so eu tu ele ela nos vos eles elas meu minha teu tua seu sua isto isso aquilo este esta esse essa ao aos pelo pela como quando onde porque porque qual quais ter tem tenho foi era sao ser estar esta estou fazer faz fiz vai vou pode posso nao sim el la los las un una y o pero con sin por para es son der die das und ist nicht after before since every time times day days please pls hi hello hey thanks thank ok okay im i'm it's dont don't doesn't can't cant".split(" "));
 function themes(items, limit = 15) {
   const one = /* @__PURE__ */ new Map(), two = /* @__PURE__ */ new Map();
+  const projectWords = new Set(items.flatMap((i) => i.projects || []).flatMap((p) => textWords(p)));
   for (const it of items) {
-    const ws = textWords(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
+    const ws = textWords(`${it.kind === "reply" ? "" : it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w) && !projectWords.has(w) && !["pack", "modpack", "mod", "game"].includes(w));
     const seen1 = new Set(ws);
     const seen2 = new Set(ws.slice(1).map((w, i) => `${ws[i]} ${w}`));
     for (const w of seen1) one.set(w, (one.get(w) || 0) + 1);
@@ -46757,7 +46759,7 @@ function report(items, map2) {
       negative_posts: minePosts.filter((i) => i.sentiment < 0).length,
       positive_posts: minePosts.filter((i) => i.sentiment > 0).length,
       open_bugs: minePosts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).length,
-      top_themes: themes(mine, 6).phrases.concat(themes(mine, 6).words).slice(0, 8).map((t) => t.term)
+      top_themes: (({ phrases, words: w }) => [...new Set(phrases.concat(w).map((t) => t.term))])(themes(mine, 6)).slice(0, 8)
     });
   }
   return {

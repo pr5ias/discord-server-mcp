@@ -151,7 +151,8 @@ const TYPE = { 0: "text", 2: "voice", 5: "announcement", 13: "stage", 15: "forum
 
 /** A Mermaid diagram of the map: projects linked to the areas and channels that talk about them. */
 export function mermaidMap(map, title = "Server") {
-  const id = (s) => "n" + Buffer.from(s).toString("hex").slice(0, 16);
+  const ids = new Map();
+  const id = (s) => (ids.has(s) ? ids.get(s) : (ids.set(s, `n${ids.size + 1}`), ids.get(s)));
   const esc = (s) => s.replace(/"/g, "'");
   const lines = ["flowchart LR", `  S["${esc(title)}"]`];
   for (const [area, list] of Object.entries(map.areas)) {
@@ -216,14 +217,18 @@ const STOP = new Set(("a an the and or but if then so to of in on at for from by
   "o a os as um uma uns umas de do da dos das em no na nos nas por para com sem que e ou mas se entao muito muita muitos muitas mais menos ja ainda tambem so " +
   "eu tu ele ela nos vos eles elas meu minha teu tua seu sua isto isso aquilo este esta esse essa ao aos pelo pela como quando onde porque porque qual quais ter tem tenho " +
   "foi era sao ser estar esta estou fazer faz fiz vai vou pode posso nao sim el la los las un una y o pero con sin por para es son der die das und ist nicht " +
-  "please pls hi hello hey thanks thank ok okay im i'm it's dont don't doesn't can't cant")
+  "after before since every time times day days please pls hi hello hey thanks thank ok okay im i'm it's dont don't doesn't can't cant")
   .split(" "));
 
 /** Repeated words and two-word phrases, most frequent first, counted once per item. */
 export function themes(items, limit = 15) {
   const one = new Map(), two = new Map();
+  // Project names are in every post about the project, so they are not a theme.
+  const projectWords = new Set(items.flatMap((i) => i.projects || []).flatMap((p) => textWords(p)));
   for (const it of items) {
-    const ws = textWords(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
+    // A reply carries its post's title; count the title once, with the post.
+    const ws = textWords(`${it.kind === "reply" ? "" : it.title || ""} ${it.text || ""}`)
+      .filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w) && !projectWords.has(w) && !["pack", "modpack", "mod", "game"].includes(w));
     const seen1 = new Set(ws);
     const seen2 = new Set(ws.slice(1).map((w, i) => `${ws[i]} ${w}`));
     for (const w of seen1) one.set(w, (one.get(w) || 0) + 1);
@@ -288,7 +293,7 @@ export function report(items, map) {
       sentiment: avg(mine.map((i) => i.sentiment)),
       negative_posts: minePosts.filter((i) => i.sentiment < 0).length, positive_posts: minePosts.filter((i) => i.sentiment > 0).length,
       open_bugs: minePosts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).length,
-      top_themes: themes(mine, 6).phrases.concat(themes(mine, 6).words).slice(0, 8).map((t) => t.term),
+      top_themes: (({ phrases, words: w }) => [...new Set(phrases.concat(w).map((t) => t.term))])(themes(mine, 6)).slice(0, 8),
     });
   }
   return {
