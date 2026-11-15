@@ -34,10 +34,12 @@ export const PACKS = {
   expressions: { about: "emojis, stickers, soundboard, scheduled events, stage, application commands",
     tools: ["list_emojis", "create_emoji", "delete_emoji", "create_sticker", "delete_sticker", "list_sounds", "create_sound", "delete_sound",
       "list_events", "create_event", "edit_event", "delete_event", "start_stage", "end_stage", "list_commands", "delete_command"] },
+  insights: { about: "mapping a server's areas and projects, collecting feedback from forums, tickets and channels, and feedback reports (tone, open bugs, repeated requests, themes), also from exported files",
+    tools: ["map_server", "collect_feedback", "feedback_report"] },
   api: { about: "direct Discord API calls for anything else", tools: ["discord_api"] },
 };
 const PACK_OF = Object.fromEntries(Object.entries(PACKS).flatMap(([p, v]) => v.tools.map((t) => [t, p])));
-const ALIASES = { automation: "automations", events: "live" };
+const ALIASES = { automation: "automations", events: "live", analysis: "insights", feedback: "insights" };
 
 /** Packs switched on at start: DISCORD_TOOLSETS lists them, "all" turns on everything. */
 export function startPacks() {

@@ -277,6 +277,52 @@ await check("read_messages", { channel: "general", limit: 5, full: true }, ({ da
   assert.deepEqual(e.fields, [{ name: "Field", value: "Field text", inline: true }]);
   assert.equal(data.messages[0].buttons[0].url, "https://example.com");
 });
+// Insights: map, collect and report.
+await check("map_server", {}, ({ data }) => {
+  assert.deepEqual(data.areas.bugs, ["bug-reports"]);
+  assert.ok(data.areas.announcements.includes("📢-announcements"));
+  assert.ok(data.feedback_channels.some((c) => c.name === "bug-reports"));
+  assert.match(data.mermaid, /^flowchart LR/);
+});
+let collectedFile;
+await check("collect_feedback", {}, ({ data }) => {
+  assert.equal(data.posts, 2);
+  assert.equal(data.replies, 2, "the bot's reply is left out, the webhook's is kept");
+  const first = data.items.find((i) => i.title === "Game crashes when opening the map");
+  assert.equal(first.area, "bugs");
+  assert.equal(first.author, "member-1", "people are anonymised by default");
+  assert.equal(first.reactions, 4);
+  assert.ok(first.sentiment < 0);
+  assert.deepEqual(data.items.find((i) => i.title === "Map crash after the update").status, ["Approved"]);
+  assert.ok(data.items.some((i) => i.kind === "reply" && i.author === "member-2"));
+  assert.ok(existsSync(data.file));
+  collectedFile = data.file;
+});
+await check("collect_feedback", { anonymize: false, include_replies: false }, ({ data }) => {
+  assert.equal(data.replies, 0);
+  assert.ok(data.items.some((i) => i.author === "Alice"));
+});
+await check("feedback_report", { file: collectedFile }, ({ data }) => {
+  assert.equal(data.totals.posts, 2);
+  assert.equal(data.by_area.bugs, 2);
+  assert.equal(data.repeated.length, 1, "two posts about the same map crash");
+  assert.ok(data.themes.words.some((w) => w.term === "crash" || w.term === "map"));
+  assert.ok(existsSync(data.files.markdown));
+  assert.match(readFileSync(data.files.markdown, "utf8"), /## Projects/);
+});
+{
+  const csv = join(HOME, "reviews.csv");
+  writeFileSync(csv, 'title,text,author,tags,likes\n"Great mod","I love it, works great",ana,Farming,3\n"Too slow","The game is slow and laggy with it",rui,Farming,1\n"Laggy","Really laggy and slow on my PC",ana,Farming,0\n');
+  await check("feedback_report", { file: csv }, ({ data }) => {
+    assert.equal(data.totals.posts, 3);
+    assert.equal(data.totals.people, 2);
+    assert.ok(data.most_negative.length >= 2);
+    assert.ok(data.themes.words.some((w) => w.term === "slow" || w.term === "laggy"));
+  });
+  const txt = join(HOME, "notes.txt");
+  writeFileSync(txt, "Crashes on start\nThe game crashes on start since yesterday\n\nLove the new sounds, amazing work\n");
+  await check("feedback_report", { file: txt }, ({ data }) => assert.equal(data.totals.posts, 2));
+}
 await check("get_member", { member: "bot" }, ({ data }) => assert.equal(data.username, "TestBot"));
 await check("send_message", { channel: "nonexistent", content: "x" }, ({ isError, text }) => {
   assert.ok(isError);

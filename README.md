@@ -8,7 +8,7 @@ Create, organise and moderate **Discord servers from Claude** (or any MCP client
 
 Ask in plain words: *"set up a server for my gaming group"*, *"add a Solved tag to the help forum"*, *"post this announcement with the image and ping @Announcements"*, *"who can see #staff-chat?"*. The assistant reads the server, shows you the plan, and acts once you agree.
 
-- **132 tools**, of which only a core of 48 is on at first; the rest turn on when a task needs them, plus `discord_api` for any other Discord endpoint.
+- **135 tools**, of which only a core of 48 is on at first; the rest turn on when a task needs them, plus `discord_api` for any other Discord endpoint.
 - **Live events:** the assistant sees what happens as it happens: new messages, mentions of the bot, members joining or leaving, reactions and button clicks. It can also wait for something, such as a reply.
 - **Automations:**
   - role menus with buttons, a dropdown or reactions;
@@ -99,7 +99,7 @@ Restart the app and type **`/discord`** (in Claude), or just ask *"show my Disco
 
 ## Tools
 
-132 tools in packs. Only the **core** pack (48 tools) is on at first, so the model has fewer tools to choose from and each request stays small. When a task needs more, the assistant calls `enable_tools` and the pack appears at once. In apps that do not refresh their tool list, the assistant calls the same tools through `use_tool`, so nothing is out of reach. `DISCORD_TOOLSETS=all` turns everything on.
+135 tools in packs. Only the **core** pack (48 tools) is on at first, so the model has fewer tools to choose from and each request stays small. When a task needs more, the assistant calls `enable_tools` and the pack appears at once. In apps that do not refresh their tool list, the assistant calls the same tools through `use_tool`, so nothing is out of reach. `DISCORD_TOOLSETS=all` turns everything on.
 
 | Pack | Tools |
 | --- | --- |
@@ -112,6 +112,7 @@ Restart the app and type **`/discord`** (in Claude), or just ask *"show my Disco
 | **organizing** | `clone_channel`, `add_forum_tags`, `list_threads`, `edit_thread`, `follow_announcement_channel`, `sync_permissions`, `copy_permissions` |
 | **server_settings** | `get_onboarding`, `edit_onboarding`, `edit_welcome_screen`, `list_invites`, `delete_invite`, `server_stats`, `channel_activity`, `edit_bot_profile`, `create_server`, `leave_server` |
 | **expressions** | `list_emojis`, `create_emoji`, `delete_emoji`, `create_sticker`, `delete_sticker`, `list_sounds`, `create_sound`, `delete_sound`, `list_events`, `create_event`, `edit_event`, `delete_event`, `start_stage`, `end_stage`, `list_commands`, `delete_command` |
+| **insights** | `map_server` (what each channel is for, the projects of the server, a Mermaid map), `collect_feedback` (forum posts with tags, status and replies, tickets and feedback channels; people anonymised by default; saved to a file), `feedback_report` (per project and area: tone, open bugs, most discussed and most negative posts, repeated requests, recurring themes; from a live server or from a file: exports, `backup_messages`, CSV, plain text) |
 | **api** | `discord_api`: any REST endpoint (`{guild}` in the path becomes the server id) |
 
 ### Templates and backups

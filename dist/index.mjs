@@ -6515,11 +6515,11 @@ var require_format = __commonJS({
           }
           function getFormat(fmtDef) {
             const code = fmtDef instanceof RegExp ? (0, codegen_1.regexpCode)(fmtDef) : opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(schema)}` : void 0;
-            const fmt = gen.scopeValue("formats", { key: schema, ref: fmtDef, code });
+            const fmt2 = gen.scopeValue("formats", { key: schema, ref: fmtDef, code });
             if (typeof fmtDef == "object" && !(fmtDef instanceof RegExp)) {
-              return [fmtDef.type || "string", fmtDef.validate, (0, codegen_1._)`${fmt}.validate`];
+              return [fmtDef.type || "string", fmtDef.validate, (0, codegen_1._)`${fmt2}.validate`];
             }
-            return ["string", fmtDef, fmt];
+            return ["string", fmtDef, fmt2];
           }
           function validCondition() {
             if (typeof formatDef == "object" && !(formatDef instanceof RegExp) && formatDef.async) {
@@ -7181,8 +7181,8 @@ var require_limit = __commonJS({
             ref: self.formats,
             code: opts.code.formats
           });
-          const fmt = gen.const("fmt", (0, codegen_1._)`${fmts}[${fCxt.schemaCode}]`);
-          cxt.fail$data((0, codegen_1.or)((0, codegen_1._)`typeof ${fmt} != "object"`, (0, codegen_1._)`${fmt} instanceof RegExp`, (0, codegen_1._)`typeof ${fmt}.compare != "function"`, compareCode(fmt)));
+          const fmt2 = gen.const("fmt", (0, codegen_1._)`${fmts}[${fCxt.schemaCode}]`);
+          cxt.fail$data((0, codegen_1.or)((0, codegen_1._)`typeof ${fmt2} != "object"`, (0, codegen_1._)`${fmt2} instanceof RegExp`, (0, codegen_1._)`typeof ${fmt2}.compare != "function"`, compareCode(fmt2)));
         }
         function validateFormat() {
           const format = fCxt.schema;
@@ -7192,15 +7192,15 @@ var require_limit = __commonJS({
           if (typeof fmtDef != "object" || fmtDef instanceof RegExp || typeof fmtDef.compare != "function") {
             throw new Error(`"${keyword}": format "${format}" does not define "compare" function`);
           }
-          const fmt = gen.scopeValue("formats", {
+          const fmt2 = gen.scopeValue("formats", {
             key: format,
             ref: fmtDef,
             code: opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(format)}` : void 0
           });
-          cxt.fail$data(compareCode(fmt));
+          cxt.fail$data(compareCode(fmt2));
         }
-        function compareCode(fmt) {
-          return (0, codegen_1._)`${fmt}.compare(${data3}, ${schemaCode}) ${KWDs[keyword].fail} 0`;
+        function compareCode(fmt2) {
+          return (0, codegen_1._)`${fmt2}.compare(${data3}, ${schemaCode}) ${KWDs[keyword].fail} 0`;
         }
       },
       dependencies: ["format"]
@@ -15015,7 +15015,7 @@ function handleIntersectionResults(result, left, right) {
   const unrecKeys = /* @__PURE__ */ new Map();
   let unrecIssue;
   const keyIssues = /* @__PURE__ */ new Map();
-  const collect = (iss, side) => {
+  const collect2 = (iss, side) => {
     let keys;
     if (iss.code === "unrecognized_keys" && !iss.path?.length) {
       unrecIssue ?? (unrecIssue = iss);
@@ -15036,11 +15036,11 @@ function handleIntersectionResults(result, left, right) {
     return true;
   };
   for (const iss of left.issues) {
-    if (!collect(iss, "l"))
+    if (!collect2(iss, "l"))
       result.issues.push(iss);
   }
   for (const iss of right.issues) {
-    if (!collect(iss, "r"))
+    if (!collect2(iss, "r"))
       result.issues.push(iss);
   }
   const bothKeys = [...unrecKeys].filter(([, f]) => f.l && f.r).map(([k]) => k);
@@ -24399,45 +24399,45 @@ var PATTERN_IS_COMPLETE = /* @__PURE__ */ new Set([
   "xid"
 ]);
 function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
-  const fmt = def.format;
-  if (fmt === "base64") {
+  const fmt2 = def.format;
+  if (fmt2 === "base64") {
     const validator = addConstant(ctx, isValidBase64);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "base64url") {
+  if (fmt2 === "base64url") {
     const validator = addConstant(ctx, isValidBase64URL);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "jwt") {
+  if (fmt2 === "jwt") {
     const validator = addConstant(ctx, isValidJWT2);
     const alg = addConstant(ctx, def.alg ?? null);
     doc.write(`if (!${validator}(${accessor}, ${alg})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "ipv6") {
+  if (fmt2 === "ipv6") {
     const validator = addConstant(ctx, isValidIPv6);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "cidrv6") {
+  if (fmt2 === "cidrv6") {
     const validator = addConstant(ctx, isValidCIDRv6);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "credit_card") {
+  if (fmt2 === "credit_card") {
     const validator = addConstant(ctx, isValidCreditCard);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (fmt === "iban") {
+  if (fmt2 === "iban") {
     const validator = addConstant(ctx, isValidIBAN);
     doc.write(`if (!${validator}(${accessor})) return INVALID;`);
     return accessor;
   }
   const formatDef = def;
-  if (fmt === "url" || fmt === "httpurl" || formatDef.normalize || formatDef.hostname !== void 0 || formatDef.protocol !== void 0) {
+  if (fmt2 === "url" || fmt2 === "httpurl" || formatDef.normalize || formatDef.hostname !== void 0 || formatDef.protocol !== void 0) {
     const parseConst = addConstant(ctx, validateURL);
     const defConst = addConstant(ctx, def);
     const trimVar = newVar(ctx);
@@ -24463,12 +24463,12 @@ function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
   const customFn = def.fn;
   if (customFn) {
     if (isAsyncFunction(customFn))
-      throw new ZodCompileUnsupportedError(`async string format ${fmt}`);
+      throw new ZodCompileUnsupportedError(`async string format ${fmt2}`);
     const fnConst = addConstant(ctx, customFn);
     doc.write(`if (!${fnConst}(${accessor})) return INVALID;`);
     return accessor;
   }
-  if (PATTERN_IS_COMPLETE.has(fmt) && def.pattern) {
+  if (PATTERN_IS_COMPLETE.has(fmt2) && def.pattern) {
     const patternConst = addConstant(ctx, def.pattern);
     doc.write(`${patternConst}.lastIndex = 0;`);
     doc.write(`if (!${patternConst}.test(${accessor})) return INVALID;`);
@@ -34912,8 +34912,8 @@ var Protocol = class {
    */
   async _clearTaskQueue(taskId, sessionId) {
     if (this._taskMessageQueue) {
-      const messages = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
-      for (const message of messages) {
+      const messages2 = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
+      for (const message of messages2) {
         if (message.type === "request" && isJSONRPCRequest(message.message)) {
           const requestId = message.message.id;
           const resolver = this._requestResolvers.get(requestId);
@@ -38452,12 +38452,12 @@ data:
         this.onerror?.(new Error(`Invalid Request: Batch must not exceed ${MAX_BATCH_SIZE} messages`));
         return this.createJsonErrorResponse(400, -32600, `Invalid Request: Batch must not exceed ${MAX_BATCH_SIZE} messages`);
       }
-      let messages;
+      let messages2;
       try {
         if (Array.isArray(rawMessage)) {
-          messages = rawMessage.map((msg) => JSONRPCMessageSchema.parse(msg));
+          messages2 = rawMessage.map((msg) => JSONRPCMessageSchema.parse(msg));
         } else {
-          messages = [JSONRPCMessageSchema.parse(rawMessage)];
+          messages2 = [JSONRPCMessageSchema.parse(rawMessage)];
         }
       } catch {
         this.onerror?.(new Error("Parse error: Invalid JSON-RPC message"));
@@ -38466,13 +38466,13 @@ data:
       if (this._closed) {
         return this.createJsonErrorResponse(404, -32001, "Session not found");
       }
-      const isInitializationRequest = messages.some(isInitializeRequest);
+      const isInitializationRequest = messages2.some(isInitializeRequest);
       if (isInitializationRequest) {
         if (this._initialized && this.sessionId !== void 0) {
           this.onerror?.(new Error("Invalid Request: Server already initialized"));
           return this.createJsonErrorResponse(400, -32600, "Invalid Request: Server already initialized");
         }
-        if (messages.length > 1) {
+        if (messages2.length > 1) {
           this.onerror?.(new Error("Invalid Request: Only one initialization request is allowed"));
           return this.createJsonErrorResponse(400, -32600, "Invalid Request: Only one initialization request is allowed");
         }
@@ -38495,15 +38495,15 @@ data:
       if (this._closed) {
         return this.createJsonErrorResponse(404, -32001, "Session not found");
       }
-      const hasRequests = messages.some(isJSONRPCRequest);
+      const hasRequests = messages2.some(isJSONRPCRequest);
       if (!hasRequests) {
-        for (const message of messages) {
+        for (const message of messages2) {
           this.onmessage?.(message, { authInfo: options?.authInfo, requestInfo });
         }
         return new Response(null, { status: 202 });
       }
       const streamId = crypto.randomUUID();
-      const initRequest = messages.find((m) => isInitializeRequest(m));
+      const initRequest = messages2.find((m) => isInitializeRequest(m));
       const clientProtocolVersion = initRequest ? initRequest.params.protocolVersion : req.headers.get("mcp-protocol-version") ?? DEFAULT_NEGOTIATED_PROTOCOL_VERSION;
       if (this._enableJsonResponse) {
         return new Promise((resolve) => {
@@ -38513,12 +38513,12 @@ data:
               this._streamMapping.delete(streamId);
             }
           });
-          for (const message of messages) {
+          for (const message of messages2) {
             if (isJSONRPCRequest(message)) {
               this._requestToStreamMapping.set(message.id, streamId);
             }
           }
-          for (const message of messages) {
+          for (const message of messages2) {
             this.onmessage?.(message, { authInfo: options?.authInfo, requestInfo });
           }
         });
@@ -38548,7 +38548,7 @@ data:
       if (this.sessionId !== void 0) {
         headers["mcp-session-id"] = this.sessionId;
       }
-      for (const message of messages) {
+      for (const message of messages2) {
         if (isJSONRPCRequest(message)) {
           this._streamMapping.set(streamId, {
             controller: streamController,
@@ -38569,7 +38569,7 @@ data:
       }
       try {
         await this.writePrimingEvent(streamController, encoder, streamId, clientProtocolVersion);
-        for (const message of messages) {
+        for (const message of messages2) {
           let closeSSEStream;
           let closeStandaloneSSEStream;
           if (isJSONRPCRequest(message) && this._eventStore && clientProtocolVersion >= "2025-11-25") {
@@ -38585,7 +38585,7 @@ data:
       } catch (error62) {
         this._streamMapping.get(streamId)?.cleanup();
         this._resumableStreams.delete(streamId);
-        for (const message of messages) {
+        for (const message of messages2) {
           if (isJSONRPCRequest(message)) {
             this._requestToStreamMapping.delete(message.id);
           }
@@ -39615,10 +39615,14 @@ var PACKS = {
       "delete_command"
     ]
   },
+  insights: {
+    about: "mapping a server's areas and projects, collecting feedback from forums, tickets and channels, and feedback reports (tone, open bugs, repeated requests, themes), also from exported files",
+    tools: ["map_server", "collect_feedback", "feedback_report"]
+  },
   api: { about: "direct Discord API calls for anything else", tools: ["discord_api"] }
 };
 var PACK_OF = Object.fromEntries(Object.entries(PACKS).flatMap(([p, v]) => v.tools.map((t) => [t, p])));
-var ALIASES = { automation: "automations", events: "live" };
+var ALIASES = { automation: "automations", events: "live", analysis: "insights", feedback: "insights" };
 function startPacks() {
   const list = (config2.toolsets || []).map((x) => ALIASES[x] || x);
   if (list.includes("all")) return new Set(Object.keys(PACKS));
@@ -40392,7 +40396,7 @@ function search(guild, { user, actor, kind, type, since, contains, limit = 25 } 
   const lines = readFileSync2(file2, "utf8").split("\n").filter(Boolean);
   const out2 = [];
   const after = since ? Date.parse(since) : 0;
-  const words = contains?.toLowerCase();
+  const words2 = contains?.toLowerCase();
   for (let i = lines.length - 1; i >= 0 && out2.length < limit; i--) {
     let r;
     try {
@@ -40405,7 +40409,7 @@ function search(guild, { user, actor, kind, type, since, contains, limit = 25 } 
     if (actor && r.actor !== actor) continue;
     if (kind && r.kind !== kind) continue;
     if (type && r.type !== type) continue;
-    if (words && !JSON.stringify(r).toLowerCase().includes(words)) continue;
+    if (words2 && !JSON.stringify(r).toLowerCase().includes(words2)) continue;
     out2.push(r);
   }
   return out2;
@@ -40775,7 +40779,7 @@ var LOCALES = { "pt-BR": ["pt-BR"], es: ["es-ES", "es-419"], fr: ["fr"], de: ["d
 var localized = (key) => Object.fromEntries(Object.entries(NAMES[key] || {}).flatMap(([l, n]) => LOCALES[l].map((code) => [code, n])));
 async function registerStaffCommands(guild, appId, list = Object.keys(STAFF_COMMANDS), { names: names3 = "member" } = {}) {
   const out2 = {};
-  const strip = (opts) => opts?.map((o) => ({ ...o, name_localizations: void 0, description_localizations: void 0, options: strip(o.options) }));
+  const strip2 = (opts) => opts?.map((o) => ({ ...o, name_localizations: void 0, description_localizations: void 0, options: strip2(o.options) }));
   for (const name of list) {
     const c = STAFF_COMMANDS[name];
     const fixed = names3 !== "member" && names3 !== "english" ? names3 : null;
@@ -40784,7 +40788,7 @@ async function registerStaffCommands(guild, appId, list = Object.keys(STAFF_COMM
     if (names3 === "member") {
       options = options?.map((o) => o.type === O.sub ? { ...o, name_localizations: { ...o.name_localizations, ...localized(`${name}.${o.name}`) } } : o);
     } else {
-      options = strip(options)?.map((o) => o.type === O.sub && fixed && fixed !== "en" ? { ...o, name: NAMES[`${name}.${o.name}`]?.[fixed] || o.name } : o);
+      options = strip2(options)?.map((o) => o.type === O.sub && fixed && fixed !== "en" ? { ...o, name: NAMES[`${name}.${o.name}`]?.[fixed] || o.name } : o);
     }
     const created = await api("POST", `/applications/${appId}/guilds/${guild}/commands`, {
       name: base,
@@ -43610,7 +43614,7 @@ function register7(t) {
     const everyone = roles.find((r) => r.id === g);
     const everyoneRisky = permNames(everyone.permissions).filter((p) => DANGEROUS.includes(p));
     if (everyoneRisky.length) findings.push(`@everyone has risky permissions: ${everyoneRisky.join(", ")}`);
-    const report = roles.filter((r) => r.id !== g).sort(byRank).map((r) => {
+    const report2 = roles.filter((r) => r.id !== g).sort(byRank).map((r) => {
       const risky = permNames(r.permissions).filter((p) => DANGEROUS.includes(p));
       if (r.permissions && risky.includes("Administrator") && !r.managed) findings.push(`"${r.name}" has Administrator`);
       if (counts && !r.managed && !counts[r.id]) findings.push(`"${r.name}" has no members`);
@@ -43624,7 +43628,7 @@ function register7(t) {
       });
     });
     if (!counts) findings.push("Member counts unavailable (turn on Server Members Intent for the bot to see them).");
-    return { findings, roles: report };
+    return { findings, roles: report2 };
   }, READ);
   tool("search_messages", "Search recent messages across the server's text channels, forums' active posts and threads (and their titles) for words or an author.", {
     server,
@@ -45098,8 +45102,8 @@ async function present(e) {
   return defined({ ...e, channel: await channelName(e.channel_id), channel_id: void 0, guild_id: void 0 });
 }
 function filterFrom(a, g, chId) {
-  const words = a.contains?.toLowerCase();
-  return (e) => (!a.types?.length || a.types.includes(e.type)) && (!g || e.guild_id === g) && (!chId || e.channel_id === chId) && (!words || (e.content || "").toLowerCase().includes(words)) && (!a.from || [e.author, e.user, e.author_id, e.user_id].some((x) => x && String(x).toLowerCase() === a.from.toLowerCase())) && (!a.mentions_only || e.mentions_bot);
+  const words2 = a.contains?.toLowerCase();
+  return (e) => (!a.types?.length || a.types.includes(e.type)) && (!g || e.guild_id === g) && (!chId || e.channel_id === chId) && (!words2 || (e.content || "").toLowerCase().includes(words2)) && (!a.from || [e.author, e.user, e.author_id, e.user_id].some((x) => x && String(x).toLowerCase() === a.from.toLowerCase())) && (!a.mentions_only || e.mentions_bot);
 }
 function register10(t) {
   const tool = t("events");
@@ -46313,12 +46317,842 @@ ${tx("verify_click")}` : rulesCh ? text("verify_with_channel", { lang: a.languag
   }, DESTRUCTIVE);
 }
 
+// src/tools/insights.js
+import { mkdirSync as mkdirSync7, writeFileSync as writeFileSync6, readFileSync as readFileSync7, existsSync as existsSync3 } from "node:fs";
+import { homedir as homedir7 } from "node:os";
+import { join as join7, basename as basename2 } from "node:path";
+
+// src/insights.js
+var AREAS = {
+  bugs: ["bug", "bugs", "issue", "issues", "crash", "crashes", "report", "reports", "erro", "erros", "problema", "problemas", "fehler", "probleme", "glitch"],
+  suggestions: ["suggestion", "suggestions", "suggest", "idea", "ideas", "request", "requests", "feature", "features", "wishlist", "sugestao", "sugestoes", "ideia", "ideias", "sugerencias", "vorschlage", "idees"],
+  reviews: ["review", "reviews", "feedback", "opinion", "opinions", "rating", "ratings", "critique", "critica", "criticas", "avaliacao", "avaliacoes", "opiniao", "opinioes", "resena", "resenas", "avis", "bewertung", "testimonials"],
+  support: ["help", "support", "question", "questions", "ask", "faq", "troubleshooting", "ajuda", "suporte", "duvida", "duvidas", "pergunta", "perguntas", "ayuda", "soporte", "hilfe", "aide"],
+  tickets: ["ticket", "tickets"],
+  announcements: ["announcement", "announcements", "news", "changelog", "changelogs", "update", "updates", "patch", "patches", "release", "releases", "devlog", "dev-blog", "blog", "anuncios", "anuncio", "novidades", "noticias"],
+  showcase: ["showcase", "screenshot", "screenshots", "media", "art", "fanart", "creations", "builds", "clips", "gallery", "showoff"],
+  chat: ["general", "chat", "off-topic", "offtopic", "lounge", "talk", "geral", "conversa", "memes"],
+  info: ["rules", "welcome", "info", "information", "links", "roles", "regras", "boas-vindas", "start-here", "readme", "guide", "guides"],
+  staff: ["staff", "admin", "mod", "mods", "moderator", "moderators", "logs", "log", "team"]
+};
+var FEEDBACK_AREAS = ["bugs", "suggestions", "reviews", "support", "tickets"];
+var STATUS_WORDS = [
+  "approved",
+  "rejected",
+  "denied",
+  "accepted",
+  "solved",
+  "resolved",
+  "fixed",
+  "open",
+  "closed",
+  "pending",
+  "planned",
+  "in progress",
+  "in-progress",
+  "investigating",
+  "duplicate",
+  "wontfix",
+  "won't fix",
+  "done",
+  "implemented",
+  "confirmed",
+  "not a bug",
+  "aprovado",
+  "rejeitado",
+  "resolvido",
+  "aberto",
+  "fechado",
+  "pendente",
+  "em progresso",
+  "corrigido",
+  "duplicado"
+];
+var KIND_WORDS = new Set(Object.values(AREAS).flat().concat(["mods", "modpacks", "modpack", "other", "misc", "general"]));
+var strip = (s) => (s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(new RegExp("\\p{Extended_Pictographic}|\uFE0F|[^\\p{L}\\p{N}\\s'-]", "gu"), " ").toLowerCase().replace(/\s+/g, " ").trim();
+var words = (s) => strip(s).split(/[\s_-]+/).filter(Boolean);
+function areaOf(ch, categoryName = "") {
+  if (ch.type === 2 || ch.type === 13) return "voice";
+  if (/^ticket[-_ ]?\d+/i.test(strip(ch.name).replace(/ /g, "-")) || /^ticket-/.test(strip(ch.name))) return "tickets";
+  const name = words(ch.name);
+  const joined = strip(ch.name).replace(/ /g, "-");
+  const score = (text2, weight) => {
+    const ws = new Set(words(text2));
+    const s = {};
+    for (const [area, keys] of Object.entries(AREAS)) {
+      for (const k of keys) if (ws.has(k) || k.includes("-") && strip(text2).replace(/ /g, "-").includes(k)) s[area] = (s[area] || 0) + weight;
+    }
+    return s;
+  };
+  const total = {};
+  for (const [text2, w] of [[ch.name, 3], [ch.topic || "", 1], [categoryName, 1]]) {
+    for (const [a, v] of Object.entries(score(text2, w))) total[a] = (total[a] || 0) + v;
+  }
+  if (ch.type === 5) total.announcements = (total.announcements || 0) + 3;
+  if (ch.type === 15 && !Object.keys(total).length) return "forum";
+  if (/dev-?blog|changelog|devlog|patch-notes/.test(joined)) return "announcements";
+  const best = Object.entries(total).sort((a, b) => b[1] - a[1])[0];
+  if (best) return best[0];
+  return name.length ? "other" : "other";
+}
+var isStatus = (tag) => STATUS_WORDS.some((w) => strip(tag) === w || strip(tag).startsWith(w + " "));
+function findProjects(channels) {
+  const cats = Object.fromEntries(channels.filter((c) => c.type === 4).map((c) => [c.id, c.name]));
+  const found = /* @__PURE__ */ new Map();
+  const add = (name, source) => {
+    const key = strip(name);
+    if (!key || key.length < 3) return;
+    if (!found.has(key)) found.set(key, { name: name.replace(/^[\p{Extended_Pictographic}️\s]+/u, "").trim(), sources: /* @__PURE__ */ new Set() });
+    found.get(key).sources.add(source);
+  };
+  const tagUse = /* @__PURE__ */ new Map();
+  for (const f of channels.filter((c) => c.type === 15 || c.type === 16)) {
+    for (const t of f.available_tags || []) {
+      if (isStatus(t.name) || words(t.name).every((w) => KIND_WORDS.has(w))) continue;
+      const k = strip(t.name);
+      if (!tagUse.has(k)) tagUse.set(k, { name: t.name, forums: /* @__PURE__ */ new Set() });
+      tagUse.get(k).forums.add(f.id);
+    }
+  }
+  for (const { name, forums } of tagUse.values()) if (forums.size >= 2) add(name, "forum tags");
+  const generic = /* @__PURE__ */ new Set([
+    "info",
+    "news",
+    "text channels",
+    "voice channels",
+    "voice",
+    "text",
+    "general",
+    "staff",
+    "community",
+    "statistics",
+    "development",
+    "projects",
+    "problems suggestions",
+    "support",
+    "tickets",
+    "archive",
+    "welcome",
+    "logs",
+    "info news",
+    "important"
+  ]);
+  for (const c of channels.filter((x) => x.type === 4)) {
+    const k = strip(c.name);
+    if (generic.has(k) || words(c.name).every((w) => KIND_WORDS.has(w) || generic.has(w) || ["and", "e", "problems", "text", "voice", "channels", "statistics", "development", "projects"].includes(w))) continue;
+    add(c.name, "category");
+  }
+  const stems = /* @__PURE__ */ new Map();
+  const filler = /* @__PURE__ */ new Set(["dev", "modpack", "mod", "the", "of", "and", "official", "beta", "alpha"]);
+  for (const c of channels.filter((x) => x.type !== 4 && x.type !== 2)) {
+    const rest2 = words(c.name).filter((w) => !KIND_WORDS.has(w) && !filler.has(w) && !/^\d+$/.test(w) && w !== "ticket");
+    if (!rest2.length) continue;
+    const stem2 = rest2.slice(0, 3).join(" ");
+    const first = rest2[0];
+    for (const k of /* @__PURE__ */ new Set([stem2, first])) {
+      if (!stems.has(k)) stems.set(k, /* @__PURE__ */ new Set());
+      stems.get(k).add(c.id);
+    }
+  }
+  for (const [k, ids] of stems) {
+    if (ids.size < 2 || k.length < 3) continue;
+    const longer = [...stems].find(([k2, ids2]) => k2 !== k && k2.startsWith(k + " ") && ids2.size === ids.size);
+    if (longer) continue;
+    const already = [...found.keys()].some((f) => f.includes(k) || k.includes(f));
+    if (already) {
+      for (const [f, v] of found) if (f.includes(k) || k.includes(f)) v.sources.add("channel names");
+      continue;
+    }
+    add(k.replace(/\b\w/g, (x) => x.toUpperCase()), "channel names");
+  }
+  const list = [...found.entries()].sort((a, b) => b[0].length - a[0].length);
+  const out2 = [];
+  for (const [k, v] of list) {
+    const bigger = out2.find((o) => o.key.includes(k));
+    if (bigger) {
+      v.sources.forEach((s) => bigger.sources.add(s));
+      bigger.aliases.add(k);
+      continue;
+    }
+    out2.push({ key: k, name: v.name, sources: v.sources, aliases: /* @__PURE__ */ new Set([k, ...words(k).filter((w) => w.length >= 4 && !KIND_WORDS.has(w)).slice(0, 1)]) });
+  }
+  return out2.map((p) => ({ name: p.name, found_in: [...p.sources], match: [...p.aliases] })).sort((a, b) => a.name.localeCompare(b.name));
+}
+function projectsIn(texts, projects) {
+  const t = " " + strip(texts.filter(Boolean).join(" ")).replace(/-/g, " ") + " ";
+  return projects.filter((p) => p.match.some((m) => t.includes(" " + m + " ") || m.length >= 6 && t.includes(m))).map((p) => p.name);
+}
+function mapServer(channels) {
+  const cats = Object.fromEntries(channels.filter((c) => c.type === 4).map((c) => [c.id, c.name]));
+  const projects = findProjects(channels);
+  const rows = channels.filter((c) => c.type !== 4).sort((a, b) => (a.position ?? 0) - (b.position ?? 0)).map((c) => {
+    const category2 = cats[c.parent_id] || "";
+    const area = areaOf(c, category2);
+    const tags = (c.available_tags || []).map((t) => t.name);
+    return {
+      id: c.id,
+      name: c.name,
+      type: TYPE[c.type] || String(c.type),
+      category: category2 || void 0,
+      area,
+      projects: projectsIn([c.name, category2, c.topic], projects),
+      project_tags: tags.length ? tags.filter((t) => projects.some((p) => strip(t).includes(p.match[0]))) : void 0,
+      status_tags: tags.length ? tags.filter(isStatus) : void 0,
+      feedback: FEEDBACK_AREAS.includes(area) || area === "forum"
+    };
+  });
+  const areas = {};
+  for (const r of rows) (areas[r.area] ||= []).push(r.name);
+  return { projects, areas, channels: rows };
+}
+var TYPE = { 0: "text", 2: "voice", 5: "announcement", 13: "stage", 15: "forum", 16: "media" };
+function mermaidMap(map2, title = "Server") {
+  const id = (s) => "n" + Buffer.from(s).toString("hex").slice(0, 16);
+  const esc3 = (s) => s.replace(/"/g, "'");
+  const lines = ["flowchart LR", `  S["${esc3(title)}"]`];
+  for (const [area, list] of Object.entries(map2.areas)) {
+    if (area === "voice") continue;
+    lines.push(`  ${id("a" + area)}(["${area}"])`, `  S --> ${id("a" + area)}`);
+    for (const name of list.slice(0, 12)) {
+      lines.push(`  ${id("c" + name)}["#${esc3(name)}"]`, `  ${id("a" + area)} --> ${id("c" + name)}`);
+    }
+  }
+  for (const p of map2.projects) {
+    lines.push(`  ${id("p" + p.name)}{{"${esc3(p.name)}"}}`);
+    for (const c of map2.channels.filter((r) => r.projects.includes(p.name) || r.project_tags?.length)) {
+      if (c.projects.includes(p.name) || c.project_tags?.some((t) => strip(t).includes(p.match[0]))) lines.push(`  ${id("p" + p.name)} -.- ${id("c" + c.name)}`);
+    }
+  }
+  return lines.join("\n");
+}
+function pseudonymizer(enabled) {
+  const seen2 = /* @__PURE__ */ new Map();
+  return (id, name) => {
+    if (!enabled) return name || id;
+    if (!seen2.has(id)) seen2.set(id, `member-${seen2.size + 1}`);
+    return seen2.get(id);
+  };
+}
+var POSITIVE = [
+  "love",
+  "loved",
+  "great",
+  "awesome",
+  "amazing",
+  "good",
+  "nice",
+  "best",
+  "fun",
+  "smooth",
+  "beautiful",
+  "perfect",
+  "excellent",
+  "thanks",
+  "thank",
+  "recommend",
+  "enjoy",
+  "enjoyed",
+  "cool",
+  "fantastic",
+  "polished",
+  "stable",
+  "fast",
+  "worth",
+  "incredible",
+  "fixed",
+  "adoro",
+  "adorei",
+  "gosto",
+  "gostei",
+  "otimo",
+  "excelente",
+  "bom",
+  "boa",
+  "incrivel",
+  "fixe",
+  "perfeito",
+  "obrigado",
+  "recomendo",
+  "divertido",
+  "rapido",
+  "lindo",
+  "estavel",
+  "espetacular",
+  "genial",
+  "bueno",
+  "encanta",
+  "gracias",
+  "super",
+  "toll",
+  "gut",
+  "genial"
+];
+var NEGATIVE = [
+  "bug",
+  "bugs",
+  "crash",
+  "crashes",
+  "crashing",
+  "broken",
+  "break",
+  "breaks",
+  "bad",
+  "worse",
+  "worst",
+  "hate",
+  "lag",
+  "laggy",
+  "slow",
+  "boring",
+  "annoying",
+  "useless",
+  "error",
+  "errors",
+  "fail",
+  "fails",
+  "failed",
+  "missing",
+  "terrible",
+  "awful",
+  "unplayable",
+  "freeze",
+  "freezes",
+  "frozen",
+  "stuck",
+  "confusing",
+  "disappointed",
+  "disappointing",
+  "expensive",
+  "grindy",
+  "unbalanced",
+  "op",
+  "overpowered",
+  "problem",
+  "problems",
+  "issue",
+  "issues",
+  "doesn't",
+  "doesnt",
+  "can't",
+  "cant",
+  "won't",
+  "wont",
+  "not working",
+  "stutter",
+  "fps drop",
+  "glitch",
+  "mau",
+  "ma",
+  "pessimo",
+  "horrivel",
+  "lento",
+  "chato",
+  "erro",
+  "erros",
+  "problema",
+  "problemas",
+  "partido",
+  "travou",
+  "trava",
+  "nao funciona",
+  "falha",
+  "falhou",
+  "detesto",
+  "odeio",
+  "irritante",
+  "confuso",
+  "desiludido",
+  "malo",
+  "roto",
+  "schlecht",
+  "kaputt"
+];
+var NEGATORS = ["not", "no", "never", "nao", "nunca", "nem", "isn't", "isnt", "wasn't", "wasnt", "don't", "dont"];
+function sentiment(text2) {
+  const ws = words(text2);
+  const joined = " " + ws.join(" ") + " ";
+  let pos = 0, neg = 0;
+  ws.forEach((w, i) => {
+    const flip = NEGATORS.includes(ws[i - 1]) || NEGATORS.includes(ws[i - 2]);
+    if (POSITIVE.includes(w)) flip ? neg++ : pos++;
+    else if (NEGATIVE.includes(w)) flip ? pos += 0.5 : neg++;
+  });
+  for (const p of NEGATIVE.filter((x) => x.includes(" "))) if (joined.includes(" " + p + " ")) neg++;
+  if (!pos && !neg) return 0;
+  return Math.round((pos - neg) / (pos + neg) * 100) / 100;
+}
+var STOP = new Set("a an the and or but if then so to of in on at for from by with without about as is are was were be been being it its this that these those i me my we our you your he she they them their his her there here what which who when where why how all any some more most very can could would should will just also too not no yes do does did done have has had get got make made like one two out up down over again still even only really much many lot lots thing things o a os as um uma uns umas de do da dos das em no na nos nas por para com sem que e ou mas se entao muito muita muitos muitas mais menos ja ainda tambem so eu tu ele ela nos vos eles elas meu minha teu tua seu sua isto isso aquilo este esta esse essa ao aos pelo pela como quando onde porque porque qual quais ter tem tenho foi era sao ser estar esta estou fazer faz fiz vai vou pode posso nao sim el la los las un una y o pero con sin por para es son der die das und ist nicht please pls hi hello hey thanks thank ok okay im i'm it's dont don't doesn't can't cant".split(" "));
+function themes(items, limit = 15) {
+  const one = /* @__PURE__ */ new Map(), two = /* @__PURE__ */ new Map();
+  for (const it of items) {
+    const ws = words(`${it.title || ""} ${it.text || ""}`).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w));
+    const seen1 = new Set(ws);
+    const seen2 = new Set(ws.slice(1).map((w, i) => `${ws[i]} ${w}`));
+    for (const w of seen1) one.set(w, (one.get(w) || 0) + 1);
+    for (const p of seen2) two.set(p, (two.get(p) || 0) + 1);
+  }
+  const top = (m) => [...m].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([term, n]) => ({ term, posts: n }));
+  return { phrases: top(two), words: top(one) };
+}
+var stem = (w) => w.replace(/(?:ings|ing|ed|es|s)$/, (end, offset) => offset >= 3 ? "" : end);
+function similarGroups(items) {
+  const sig = (it) => new Set(words(it.title || it.text?.slice(0, 80)).filter((w) => w.length >= 3 && !STOP.has(w)).map(stem));
+  const posts = items.filter((i) => i.kind !== "reply");
+  const groups = [];
+  const used = /* @__PURE__ */ new Set();
+  posts.forEach((a, i) => {
+    if (used.has(i)) return;
+    const sa = sig(a);
+    const g = [a];
+    posts.forEach((b, j) => {
+      if (j <= i || used.has(j)) return;
+      const shared = [...sig(b)].filter((w) => sa.has(w));
+      if (shared.length >= 2) {
+        g.push(b);
+        used.add(j);
+      }
+    });
+    if (g.length > 1) {
+      used.add(i);
+      groups.push({ about: [...sa].filter((w) => g.every((x) => sig(x).has(w))).join(" ") || (a.title || "").slice(0, 60), posts: g.map((x) => x.title || x.text.slice(0, 80)) });
+    }
+  });
+  return groups;
+}
+function report(items, map2) {
+  const posts = items.filter((i) => i.kind !== "reply");
+  const by = (key) => {
+    const out2 = {};
+    for (const it of posts) for (const v of [].concat(it[key] ?? "none")) out2[v] = (out2[v] || 0) + 1;
+    return Object.fromEntries(Object.entries(out2).sort((a, b) => b[1] - a[1]));
+  };
+  const score = (it) => (it.reactions || 0) + (it.replies || 0) * 2;
+  const avg = (arr) => arr.length ? Math.round(arr.reduce((s, x) => s + x, 0) / arr.length * 100) / 100 : null;
+  const projects = {};
+  for (const p of [...new Set(posts.flatMap((i) => i.projects?.length ? i.projects : ["(no project)"]))]) {
+    const mine = items.filter((i) => (i.projects?.length ? i.projects : ["(no project)"]).includes(p));
+    const minePosts = mine.filter((i) => i.kind !== "reply");
+    projects[p] = defined2({
+      posts: minePosts.length,
+      replies: mine.length - minePosts.length,
+      by_area: Object.fromEntries(Object.entries(minePosts.reduce((o, i) => ({ ...o, [i.area]: (o[i.area] || 0) + 1 }), {}))),
+      sentiment: avg(mine.map((i) => i.sentiment)),
+      negative_posts: minePosts.filter((i) => i.sentiment < 0).length,
+      positive_posts: minePosts.filter((i) => i.sentiment > 0).length,
+      open_bugs: minePosts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).length,
+      top_themes: themes(mine, 6).phrases.concat(themes(mine, 6).words).slice(0, 8).map((t) => t.term)
+    });
+  }
+  return {
+    totals: {
+      posts: posts.length,
+      replies: items.length - posts.length,
+      people: new Set(items.map((i) => i.author)).size,
+      sentiment: avg(items.map((i) => i.sentiment))
+    },
+    by_area: by("area"),
+    by_status: by("status"),
+    by_tag: by("tags"),
+    projects,
+    most_discussed: [...posts].sort((a, b) => score(b) - score(a)).slice(0, 8).map((i) => defined2({ title: i.title, area: i.area, projects: i.projects, reactions: i.reactions, replies: i.replies, link: i.link })),
+    most_negative: posts.filter((i) => i.sentiment < 0).sort((a, b) => a.sentiment - b.sentiment || score(b) - score(a)).slice(0, 8).map((i) => defined2({ title: i.title, area: i.area, projects: i.projects, sentiment: i.sentiment, link: i.link })),
+    open_bugs: posts.filter((i) => i.area === "bugs" && !closedStatus(i.status)).map((i) => defined2({ title: i.title, projects: i.projects, status: i.status, link: i.link })),
+    repeated: similarGroups(posts),
+    themes: themes(items),
+    map: map2 ? mermaidMap(map2) : void 0
+  };
+}
+var closedStatus = (s) => [].concat(s || []).some((x) => /solved|resolved|fixed|closed|done|implemented|rejected|denied|duplicate|wontfix|resolvido|corrigido|fechado|rejeitado/.test(strip(x)));
+function reportMarkdown(r, title = "Feedback report") {
+  const L = [`# ${title}`, "", `**${r.totals.posts}** posts and **${r.totals.replies}** replies from **${r.totals.people}** people. Average tone: **${fmt(r.totals.sentiment)}** (\u22121 negative \u2026 +1 positive; a word-list hint, read the posts before concluding).`, ""];
+  const table = (obj, h) => {
+    L.push(`| ${h} | Posts |`, "|---|---|", ...Object.entries(obj).map(([k, v]) => `| ${k} | ${v} |`), "");
+  };
+  L.push("## Projects", "", "| Project | Posts | Replies | Tone | Negative | Positive | Open bugs | Themes |", "|---|---|---|---|---|---|---|---|");
+  for (const [p, v] of Object.entries(r.projects)) L.push(`| ${p} | ${v.posts} | ${v.replies} | ${fmt(v.sentiment)} | ${v.negative_posts} | ${v.positive_posts} | ${v.open_bugs} | ${(v.top_themes || []).join(", ")} |`);
+  L.push("", "## By area", "");
+  table(r.by_area, "Area");
+  L.push("## By status", "");
+  table(r.by_status, "Status");
+  const list = (head, arr, f) => {
+    if (!arr.length) return;
+    L.push(`## ${head}`, "", ...arr.map(f), "");
+  };
+  const link = (i) => i.link ? ` ([open](${i.link}))` : "";
+  list("Most discussed", r.most_discussed, (i) => `- **${i.title}** \xB7 ${i.area}${i.projects?.length ? " \xB7 " + i.projects.join(", ") : ""} \xB7 ${i.reactions || 0} reactions, ${i.replies || 0} replies${link(i)}`);
+  list("Most negative", r.most_negative, (i) => `- **${i.title}** \xB7 ${i.area} \xB7 tone ${fmt(i.sentiment)}${link(i)}`);
+  list("Open bugs", r.open_bugs, (i) => `- **${i.title}**${i.projects?.length ? " \xB7 " + i.projects.join(", ") : ""}${i.status?.length ? " \xB7 " + [].concat(i.status).join(", ") : ""}${link(i)}`);
+  list("Asked or reported more than once", r.repeated, (g) => `- **${g.about}** (${g.posts.length} posts): ${g.posts.map((p) => `"${p}"`).join(", ")}`);
+  if (r.themes.phrases.length || r.themes.words.length) {
+    L.push("## Recurring themes", "", r.themes.phrases.map((t) => `${t.term} (${t.posts})`).join(" \xB7 "), "", r.themes.words.map((t) => `${t.term} (${t.posts})`).join(" \xB7 "), "");
+  }
+  if (r.map) L.push("## Map", "", "```mermaid", r.map, "```", "");
+  return L.join("\n");
+}
+var fmt = (n) => n === null || n === void 0 ? "\u2013" : (n > 0 ? "+" : "") + n.toFixed(2);
+function defined2(obj) {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== void 0 && v !== null && !(Array.isArray(v) && !v.length)));
+}
+function itemsFromFile(text2, fileName = "file") {
+  const t = text2.trim();
+  if (t.startsWith("{") || t.startsWith("[")) {
+    const j = JSON.parse(t);
+    if (Array.isArray(j?.items)) return { items: j.items, source: "collection" };
+    const exports = Array.isArray(j) && j[0]?.messages ? j : j.messages ? [j] : null;
+    if (exports) {
+      return { source: "channel export", items: exports.flatMap((e) => {
+        const ch = e.channel || {};
+        return e.messages.filter((m) => (m.content || m.embeds?.length) && m.type !== "ThreadCreated").map((m, i) => ({
+          kind: i === 0 && ch.type?.toString().toLowerCase().includes("thread") ? "post" : "message",
+          channel: ch.name || fileName,
+          category: ch.category,
+          title: i === 0 && ch.type?.toString().toLowerCase().includes("thread") ? ch.name : void 0,
+          author_id: m.author?.id || m.author?.name,
+          author_name: m.author?.nickname || m.author?.name,
+          text: [m.content, ...(m.embeds || []).map((x) => [x.title, x.description].filter(Boolean).join("\n"))].filter(Boolean).join("\n"),
+          reactions: (m.reactions || []).reduce((s, r) => s + (r.count || 0), 0),
+          created: m.timestamp
+        }));
+      }) };
+    }
+    if (Array.isArray(j)) return { source: "message list", items: j.map((m) => ({
+      kind: "message",
+      channel: m.channel || fileName,
+      title: m.title,
+      author_id: m.author_id || m.author?.id || m.author,
+      author_name: m.author?.name || m.author,
+      text: m.text || m.content || "",
+      reactions: m.reactions,
+      created: m.created || m.timestamp
+    })) };
+  }
+  if (/\.csv$/i.test(fileName) || /^[^\n]*,[^\n]*\n/.test(t) && /text|content|message|review/i.test(t.split("\n")[0])) {
+    const rows = parseCsv(t);
+    const head = rows.shift().map((h) => h.toLowerCase().trim());
+    const col = (r, ...names3) => {
+      const i = head.findIndex((h) => names3.includes(h));
+      return i >= 0 ? r[i] : void 0;
+    };
+    return { source: "csv", items: rows.filter((r) => r.some(Boolean)).map((r) => ({
+      kind: "post",
+      channel: col(r, "channel", "area", "forum") || fileName,
+      title: col(r, "title", "subject", "name"),
+      text: col(r, "text", "content", "message", "review", "body") || "",
+      author_id: col(r, "author", "user", "username"),
+      author_name: col(r, "author", "user", "username"),
+      tags: col(r, "tags", "tag")?.split(/[;|]/).map((x) => x.trim()).filter(Boolean),
+      reactions: Number(col(r, "reactions", "likes", "votes", "upvotes")) || void 0,
+      created: col(r, "date", "created", "timestamp")
+    })) };
+  }
+  return { source: "text", items: t.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean).map((p, i) => {
+    const [first, ...rest2] = p.split("\n");
+    return { kind: "post", channel: fileName, title: rest2.length ? first.slice(0, 120) : void 0, text: rest2.length ? rest2.join("\n") : p, author_id: `line-${i}` };
+  }) };
+}
+function parseCsv(text2) {
+  const rows = [];
+  let row = [], cell = "", q = false;
+  for (let i = 0; i < text2.length; i++) {
+    const ch = text2[i];
+    if (q) {
+      if (ch === '"' && text2[i + 1] === '"') {
+        cell += '"';
+        i++;
+      } else if (ch === '"') q = false;
+      else cell += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === ",") {
+      row.push(cell);
+      cell = "";
+    } else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text2[i + 1] === "\n") i++;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+    } else cell += ch;
+  }
+  if (cell || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+  return rows;
+}
+function enrichItems(items, { projects = [], anonymize = true } = {}) {
+  const who2 = pseudonymizer(anonymize);
+  return items.map((it) => {
+    const area = it.area || areaOf({ name: it.channel || "", topic: it.title || "" }, it.category || "");
+    const out2 = { ...it, area: area === "other" && it.kind === "post" ? "reviews" : area };
+    out2.projects = it.projects || projectsIn([it.channel, it.category, ...it.tags || [], it.title], projects);
+    out2.sentiment = it.sentiment ?? sentiment(`${it.title || ""} ${it.text || ""}`);
+    out2.author = it.author || who2(it.author_id || it.author_name || "unknown", it.author_name);
+    delete out2.author_id;
+    delete out2.author_name;
+    return out2;
+  });
+}
+
+// src/tools/insights.js
+var INSIGHTS_DIR = join7(homedir7(), ".discord-mcp", "insights");
+var AREA_NAMES = [...Object.keys(AREAS), "forum", "other"];
+var STATUS = /approved|rejected|denied|accepted|solved|resolved|fixed|open|closed|pending|planned|progress|investigating|duplicate|wontfix|done|implemented|confirmed|aprovado|rejeitado|resolvido|aberto|fechado|pendente|corrigido|duplicado/i;
+var textOf = (m) => [m.content, ...(m.embeds || []).map((e) => [e.title, e.description, ...(e.fields || []).map((f) => `${f.name}: ${f.value}`)].filter(Boolean).join("\n"))].filter(Boolean).join("\n").trim();
+var human = (m) => !m.author.bot || Boolean(m.webhook_id);
+var reactionsOf = (m) => (m.reactions || []).reduce((s, r) => s + (r.count || 0), 0);
+var safeName = (s) => s.replace(/[^\p{L}\p{N}_-]+/gu, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "server";
+async function messages(channelId, max) {
+  const out2 = [];
+  let before;
+  while (out2.length < max) {
+    const q = new URLSearchParams(defined({ limit: String(Math.min(100, max - out2.length)), before }));
+    const page2 = await api("GET", `/channels/${channelId}/messages?${q}`);
+    if (!page2.length) break;
+    out2.push(...page2);
+    before = page2.at(-1).id;
+    if (page2.length < 100) break;
+  }
+  return out2.reverse();
+}
+async function forumThreads(g, forumId, max, active2) {
+  const threads = active2.filter((t) => t.parent_id === forumId);
+  let before;
+  while (threads.length < max) {
+    const q = new URLSearchParams(defined({ limit: "100", before }));
+    const page2 = await api("GET", `/channels/${forumId}/threads/archived/public?${q}`).catch(() => ({ threads: [], has_more: false }));
+    threads.push(...page2.threads);
+    if (!page2.has_more || !page2.threads.length) break;
+    before = page2.threads.at(-1).thread_metadata?.archive_timestamp;
+  }
+  return threads.slice(0, max);
+}
+async function collect(a) {
+  const g = await guildId(a.server);
+  const guild = await api("GET", `/guilds/${g}`);
+  const all = await api("GET", `/guilds/${g}/channels`);
+  const map2 = mapServer(all);
+  const projects = map2.projects;
+  const since = a.since ? Date.parse(/^\d+$/.test(a.since) ? new Date(Date.now() - Number(a.since) * 864e5).toISOString() : a.since) : 0;
+  if (a.since && Number.isNaN(since)) throw new DiscordError(`"${a.since}" is not a date or a number of days.`);
+  const areas = a.areas?.length ? a.areas : [...FEEDBACK_AREAS, "forum"];
+  let targets;
+  if (a.channels?.length) targets = await Promise.all(a.channels.map((c) => channel(g, c)));
+  else targets = all.filter((c) => c.type !== 4 && c.type !== 2 && c.type !== 13 && areas.includes(map2.channels.find((r) => r.id === c.id)?.area));
+  const row = (c) => map2.channels.find((r) => r.id === c.id) || { area: "other", projects: [] };
+  const cats = Object.fromEntries(all.filter((c) => c.type === 4).map((c) => [c.id, c.name]));
+  const who2 = pseudonymizer(a.anonymize !== false);
+  const items = [];
+  const skipped = [];
+  const active2 = (await api("GET", `/guilds/${g}/threads/active`)).threads || [];
+  const wanted = (it) => !a.project || it.projects.some((p) => p.toLowerCase() === a.project.toLowerCase());
+  const person = (m) => who2(m.author.id, m.author.global_name || m.author.username);
+  const fresh = (m) => !since || Date.parse(m.timestamp) >= since;
+  for (const c of targets) {
+    const info2 = row(c);
+    try {
+      if (c.type === 15 || c.type === 16) {
+        const tagName = Object.fromEntries((c.available_tags || []).map((t) => [t.id, t.name]));
+        for (const t of await forumThreads(g, c.id, a.max_posts, active2)) {
+          const msgs = (await messages(t.id, a.max_replies + 1)).filter((m) => human(m) || m.id === t.id);
+          const first = msgs.find((m) => m.id === t.id) || msgs[0];
+          if (!first || !fresh(first)) continue;
+          const tags = (t.applied_tags || []).map((id) => tagName[id]).filter(Boolean);
+          const post = {
+            kind: "post",
+            area: info2.area === "forum" ? "reviews" : info2.area,
+            channel: c.name,
+            title: t.name,
+            tags,
+            status: tags.filter((x) => STATUS.test(x)),
+            projects: projectsIn([c.name, cats[c.parent_id], ...tags, t.name], projects).concat(info2.projects).filter((v, i, s) => s.indexOf(v) === i),
+            text: textOf(first),
+            author: person(first),
+            reactions: reactionsOf(first),
+            replies: Math.max(0, t.message_count ?? msgs.length - 1),
+            created: first.timestamp,
+            closed: t.thread_metadata?.archived || t.thread_metadata?.locked || void 0,
+            link: messageLink(g, t.id, first.id)
+          };
+          if (!wanted(post)) continue;
+          items.push(post);
+          if (a.include_replies) {
+            for (const m of msgs.filter((x) => x.id !== first.id && human(x) && textOf(x))) {
+              items.push({
+                kind: "reply",
+                area: post.area,
+                channel: c.name,
+                title: post.title,
+                projects: post.projects,
+                text: textOf(m),
+                author: person(m),
+                reactions: reactionsOf(m),
+                created: m.timestamp,
+                link: messageLink(g, t.id, m.id)
+              });
+            }
+          }
+        }
+      } else {
+        const msgs = (await messages(c.id, a.max_messages)).filter((m) => human(m) && textOf(m) && fresh(m));
+        const ticket = info2.area === "tickets";
+        msgs.forEach((m, i) => {
+          const it = {
+            kind: ticket ? i === 0 ? "post" : "reply" : "post",
+            area: info2.area,
+            channel: c.name,
+            title: ticket ? c.name : void 0,
+            projects: projectsIn([c.name, cats[c.parent_id], m.content], projects).concat(info2.projects).filter((v, j, s) => s.indexOf(v) === j),
+            text: textOf(m),
+            author: person(m),
+            reactions: reactionsOf(m),
+            replies: ticket && i === 0 ? msgs.length - 1 : void 0,
+            created: m.timestamp,
+            link: messageLink(g, c.id, m.id)
+          };
+          if (wanted(it)) items.push(it);
+        });
+      }
+    } catch (e) {
+      skipped.push(`${c.name}: ${e.message}`);
+    }
+  }
+  if (a.include_closed_tickets && (!a.areas?.length || areas.includes("tickets"))) {
+    for (const t of (automations().closed_tickets || []).filter((x) => x.guild === g && x.file && existsSync3(x.file))) {
+      if (since && Date.parse(t.closed) < since) continue;
+      const text2 = readFileSync7(t.file, "utf8").split("\n").slice(1).join("\n").trim();
+      const it = {
+        kind: "post",
+        area: "tickets",
+        channel: "closed tickets",
+        title: t.name,
+        status: ["closed"],
+        projects: projectsIn([t.name, text2.slice(0, 400)], projects),
+        text: text2.slice(0, 4e3),
+        author: who2(t.user_id),
+        replies: Math.max(0, (t.messages || 1) - 1),
+        created: t.opened
+      };
+      if (wanted(it)) items.push(it);
+    }
+  }
+  for (const it of items) it.sentiment = sentiment(`${it.title || ""} ${it.text || ""}`);
+  return { guild, map: map2, items: items.map((i) => defined(i)), skipped };
+}
+function save2(folder, base, data3, md) {
+  mkdirSync7(folder, { recursive: true });
+  const json3 = join7(folder, `${base}.json`);
+  writeFileSync6(json3, JSON.stringify(data3, null, 2));
+  let mdFile;
+  if (md) writeFileSync6(mdFile = join7(folder, `${base}.md`), md);
+  return { json: json3, markdown: mdFile };
+}
+var preview = (items, n) => items.slice(0, n).map((i) => defined({ ...i, text: i.text?.length > 400 ? i.text.slice(0, 400) + "\u2026" : i.text }));
+function register13(t) {
+  const tool = t("insights");
+  tool(
+    "map_server",
+    "Map a server: what each channel is for (bugs, suggestions, reviews, support, tickets, announcements, showcase, chat, info, staff), the projects it is about (from forum tags, categories and channel names), and a Mermaid diagram. Works on any server the bot is in.",
+    {
+      server
+    },
+    async ({ server: s }) => {
+      const g = await guildId(s);
+      const guild = await api("GET", `/guilds/${g}`);
+      const map2 = mapServer(await api("GET", `/guilds/${g}/channels`));
+      return {
+        server: guild.name,
+        projects: map2.projects,
+        areas: map2.areas,
+        feedback_channels: map2.channels.filter((c) => c.feedback).map((c) => defined({ name: c.name, area: c.area, type: c.type, projects: c.projects, status_tags: c.status_tags })),
+        channels: map2.channels.map((c) => defined({ name: c.name, area: c.area, type: c.type, category: c.category, projects: c.projects })),
+        mermaid: mermaidMap(map2, guild.name),
+        note: "Areas and projects are worked out from names, topics and tags. Correct them with collect_feedback's channels and project options when they are wrong."
+      };
+    },
+    READ
+  );
+  const collectShape = {
+    server,
+    areas: external_exports.array(external_exports.enum(AREA_NAMES)).optional().describe(`Which areas to read (default: ${FEEDBACK_AREAS.join(", ")} and unclassified forums)`),
+    channels: external_exports.array(external_exports.string()).optional().describe("Read exactly these channels or forums instead of choosing by area"),
+    project: external_exports.string().optional().describe("Only feedback about this project (from map_server)"),
+    since: external_exports.string().optional().describe("Only posts from this date (ISO) or from the last N days (a number)"),
+    max_posts: external_exports.number().int().min(1).max(1e3).default(100).describe("Most forum posts per forum"),
+    max_replies: external_exports.number().int().min(0).max(500).default(50).describe("Most replies read per forum post"),
+    max_messages: external_exports.number().int().min(1).max(2e3).default(200).describe("Most messages per text channel or ticket"),
+    include_replies: external_exports.boolean().default(true),
+    include_closed_tickets: external_exports.boolean().default(true).describe("Also read the transcripts of tickets closed by this tool's ticket system"),
+    anonymize: external_exports.boolean().default(true).describe("Name people member-1, member-2\u2026 instead of by their username (default)")
+  };
+  tool(
+    "collect_feedback",
+    "Collect the feedback of a server into one list: forum posts with their tags, status and replies, ticket conversations and messages from feedback channels, each with its area, project, tone and link. Saves the full list to a file and returns a preview; feedback_report summarises it.",
+    {
+      ...collectShape,
+      preview: external_exports.number().int().min(0).max(200).default(40).describe("How many items to return here (all of them go to the file)")
+    },
+    async (a) => {
+      const { guild, map: map2, items, skipped } = await collect(a);
+      const base = `${safeName(guild.name)}-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 16).replace(/[:T]/g, "-")}`;
+      const files = save2(INSIGHTS_DIR, base, { server: guild.name, collected: (/* @__PURE__ */ new Date()).toISOString(), options: a, projects: map2.projects, map: map2, items });
+      const posts = items.filter((i) => i.kind !== "reply");
+      return defined({
+        server: guild.name,
+        posts: posts.length,
+        replies: items.length - posts.length,
+        by_area: posts.reduce((o, i) => ({ ...o, [i.area]: (o[i.area] || 0) + 1 }), {}),
+        file: files.json,
+        items: preview(items, a.preview),
+        skipped: skipped.length ? skipped : void 0,
+        next: "Run feedback_report with this file for the summary, or read the items to look closer."
+      });
+    },
+    READ
+  );
+  tool(
+    "feedback_report",
+    "Summarise feedback: per project and area, tone, open bugs, most discussed and most negative posts, requests made more than once, recurring themes and a map. Reads a live server (same options as collect_feedback) or a file: a collect_feedback result, a backup_messages export, a channel export in JSON, a CSV with title/text columns, or plain text with one post per paragraph. Saves a Markdown report.",
+    {
+      ...collectShape,
+      file: external_exports.string().optional().describe("Path of a file to analyse instead of reading the server"),
+      title: external_exports.string().optional()
+    },
+    async (a) => {
+      let items, map2, name;
+      if (a.file) {
+        if (!existsSync3(a.file)) throw new DiscordError(`No file at ${a.file}.`);
+        const raw = readFileSync7(a.file, "utf8");
+        const parsed = itemsFromFile(raw, basename2(a.file));
+        let saved2 = {};
+        try {
+          saved2 = JSON.parse(raw);
+        } catch {
+        }
+        map2 = saved2.map;
+        name = saved2.server || basename2(a.file);
+        items = enrichItems(parsed.items, { projects: saved2.projects || [], anonymize: a.anonymize !== false });
+        if (a.project) items = items.filter((i) => i.projects?.some((p) => p.toLowerCase() === a.project.toLowerCase()));
+      } else {
+        const c = await collect(a);
+        ({ items, map: map2 } = c);
+        name = c.guild.name;
+      }
+      if (!items.length) throw new DiscordError("No feedback found with these options.");
+      const r = report(items, map2);
+      const md = reportMarkdown(r, a.title || `Feedback report \xB7 ${name}${a.project ? " \xB7 " + a.project : ""}`);
+      const files = save2(INSIGHTS_DIR, `report-${safeName(name)}-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 16).replace(/[:T]/g, "-")}`, { server: name, items, report: r }, md);
+      return { ...r, files, note: "Tone is a word-list hint (English, Portuguese, some Spanish and German): read the most negative posts before drawing conclusions." };
+    },
+    READ
+  );
+}
+
 // src/cli.js
 import { createInterface } from "node:readline";
 import { mkdir, readFile as readFile3, writeFile as writeFile2 } from "node:fs/promises";
-import { existsSync as existsSync3 } from "node:fs";
-import { homedir as homedir7, platform } from "node:os";
-import { dirname as dirname4, join as join7 } from "node:path";
+import { existsSync as existsSync4 } from "node:fs";
+import { homedir as homedir8, platform } from "node:os";
+import { dirname as dirname4, join as join8 } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 var out = (s = "") => process.stdout.write(s + "\n");
@@ -46351,18 +47185,18 @@ function launchCommand() {
   return { command: "node", args: [self] };
 }
 function clientConfigs() {
-  const home = homedir7();
-  const appData = process.env.APPDATA || join7(home, "AppData", "Roaming");
-  const desktop = platform() === "win32" ? join7(appData, "Claude", "claude_desktop_config.json") : platform() === "darwin" ? join7(home, "Library", "Application Support", "Claude", "claude_desktop_config.json") : join7(home, ".config", "Claude", "claude_desktop_config.json");
+  const home = homedir8();
+  const appData = process.env.APPDATA || join8(home, "AppData", "Roaming");
+  const desktop = platform() === "win32" ? join8(appData, "Claude", "claude_desktop_config.json") : platform() === "darwin" ? join8(home, "Library", "Application Support", "Claude", "claude_desktop_config.json") : join8(home, ".config", "Claude", "claude_desktop_config.json");
   return [
     { name: "Claude Desktop", file: desktop, key: "mcpServers" },
-    { name: "Cursor", file: join7(home, ".cursor", "mcp.json"), key: "mcpServers" },
-    { name: "Windsurf", file: join7(home, ".codeium", "windsurf", "mcp_config.json"), key: "mcpServers" }
-  ].filter((c) => existsSync3(dirname4(c.file)));
+    { name: "Cursor", file: join8(home, ".cursor", "mcp.json"), key: "mcpServers" },
+    { name: "Windsurf", file: join8(home, ".codeium", "windsurf", "mcp_config.json"), key: "mcpServers" }
+  ].filter((c) => existsSync4(dirname4(c.file)));
 }
 async function addToJson(file2, key, name, entry) {
   let data3 = {};
-  if (existsSync3(file2)) {
+  if (existsSync4(file2)) {
     try {
       data3 = JSON.parse(await readFile3(file2, "utf8"));
     } catch {
@@ -46449,9 +47283,9 @@ discord-server-mcp ${VERSION} setup
   out(bold('\nDone. Restart your AI app and ask: "show my Discord server".'));
 }
 async function check2() {
-  const report = await setupCheck();
-  out(JSON.stringify(report, null, 2));
-  process.exitCode = report.ok ? 0 : 1;
+  const report2 = await setupCheck();
+  out(JSON.stringify(report2, null, 2));
+  process.exitCode = report2.ok ? 0 : 1;
 }
 async function runCli(command2) {
   if (command2 === "init" || command2 === "setup") return init();
@@ -46470,14 +47304,14 @@ Bots are saved in ${BOTS_FILE} (or set DISCORD_BOT_TOKEN).`);
 }
 
 // src/index.js
-var INSTRUCTIONS = "Tools to manage Discord servers through one or more bots. Start with setup_check (bots, their servers, what to fix); new bots are added with add_bot, which asks for the token in a private box (never ask for it in chat). Tools use the bot that is in the server you name. Call get_server before changing a server. Channels, roles and members can be named instead of using ids. Before changing the server or sending messages, show the user what will happen and get their confirmation; deleting is permanent. Nobody is pinged unless ping_roles/ping_users/ping_everyone are set. Every write tool accepts dry_run to preview; permanent actions need confirm: true. To build or complete a server show preview_blueprint, then apply_blueprint. Only the core tools are on at first: when a task needs more (role menus, welcomes, tickets, live events, background jobs and backups, AutoMod and moderation, webhooks and DMs, emojis, scheduled events, onboarding, raw API calls), call enable_tools with the pack first; if the new tools do not appear, call them through use_tool. Role menus, welcomes and tickets keep working while this server runs. Set up only the features the user chose, with the options they chose; when a feature has variants (where a log goes, which commands, who gets alerts), ask before building, and show the plan first.";
+var INSTRUCTIONS = "Tools to manage Discord servers through one or more bots. Start with setup_check (bots, their servers, what to fix); new bots are added with add_bot, which asks for the token in a private box (never ask for it in chat). Tools use the bot that is in the server you name. Call get_server before changing a server. Channels, roles and members can be named instead of using ids. Before changing the server or sending messages, show the user what will happen and get their confirmation; deleting is permanent. Nobody is pinged unless ping_roles/ping_users/ping_everyone are set. Every write tool accepts dry_run to preview; permanent actions need confirm: true. To build or complete a server show preview_blueprint, then apply_blueprint. Only the core tools are on at first: when a task needs more (role menus, welcomes, tickets, live events, background jobs and backups, AutoMod and moderation, webhooks and DMs, emojis, scheduled events, onboarding, server maps and feedback reports, raw API calls), call enable_tools with the pack first; if the new tools do not appear, call them through use_tool. Role menus, welcomes and tickets keep working while this server runs. Set up only the features the user chose, with the options they chose; when a feature has variants (where a log goes, which commands, who gets alerts), ask before building, and show the plan first.";
 function buildServer() {
   const mcp = new McpServer(
     { name: "discord-server-mcp", version: VERSION },
     { instructions: INSTRUCTIONS + (config2.writeMode !== "full" ? ` Write mode is "${config2.writeMode}".` : "") }
   );
   const groupTool = (group) => registrar(mcp, group);
-  for (const register13 of [
+  for (const register14 of [
     register9,
     register2,
     register3,
@@ -46489,9 +47323,10 @@ function buildServer() {
     register10,
     register11,
     register12,
-    register
+    register,
+    register13
   ]) {
-    register13(groupTool);
+    register14(groupTool);
   }
   return mcp;
 }

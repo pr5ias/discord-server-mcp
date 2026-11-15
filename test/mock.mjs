@@ -94,6 +94,21 @@ globalThis.fetch = async (url, init = {}) => {
   if (ch && method === "DELETE") return json(state.channels.find((c) => c.id === ch[1]));
   if (/\/messages$/.test(p) && method === "POST") return json({ id: "600000000000000001", channel_id: "x", ...body });
   if (/\/threads$/.test(p) && method === "POST") return json({ id: "700000000000000001", name: body.name });
+  // A forum with two archived posts (insights tests).
+  if (p === "/channels/200000000000000004/threads/archived/public") return json({ has_more: false, threads: [
+    { id: "710000000000000001", parent_id: "200000000000000004", name: "Game crashes when opening the map", applied_tags: [], message_count: 2, thread_metadata: { archived: true } },
+    { id: "710000000000000002", parent_id: "200000000000000004", name: "Map crash after the update", applied_tags: ["300000000000000001"], message_count: 0, thread_metadata: { archived: true } },
+  ] });
+  const tm = p.match(/^\/channels\/(71000000000000000\d)\/messages$/);
+  if (tm && method === "GET") {
+    const carol = { id: "500000000000000004", username: "carol" };
+    return json(tm[1].endsWith("1")
+      ? [{ id: "720000000000000002", author: carol, content: "Same here, the game crashes every time", timestamp: "2026-11-02T10:00:00Z", reactions: [] },
+         { id: "720000000000000003", author: { id: "800000000000000009", username: "Feedback Form", bot: true }, webhook_id: "800000000000000009", content: "Form answer: crashes for me too", timestamp: "2026-11-02T11:00:00Z" },
+         { id: "720000000000000001", author: bot, content: "Thanks for the post!", timestamp: "2026-11-01T10:00:01Z" },
+         { id: "710000000000000001", author: user, content: "The game crashes when I open the map. Broken since 1.2", timestamp: "2026-11-01T10:00:00Z", reactions: [{ emoji: { name: "👍" }, count: 4 }] }]
+      : [{ id: "710000000000000002", author: carol, content: "Map crash after the update, please fix", timestamp: "2026-11-03T10:00:00Z", reactions: [{ emoji: { name: "👍" }, count: 1 }] }]);
+  }
   if (/\/messages\/\d+$/.test(p) && method === "GET") {
     const id = p.split("/").pop();
     return id.startsWith("6666") ? json({ message: "Unknown Message", code: 10008 }, 404) : json({ id, author: user, content: "old", embeds: [], attachments: [] });

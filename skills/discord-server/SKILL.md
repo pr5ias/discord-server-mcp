@@ -1,6 +1,6 @@
 ---
 name: discord-server
-description: Use when the user wants to set up, reorganise, back up or moderate a Discord server (channels, categories, forums, tags, permissions, roles, members, emojis, events, AutoMod, onboarding, server settings, templates) or post, edit, pin or delete messages, announcements, DMs and forum posts there.
+description: Use when the user wants to set up, reorganise, back up, moderate or analyse the feedback of a Discord server (channels, categories, forums, tags, permissions, roles, members, emojis, events, AutoMod, onboarding, server settings, templates) or post, edit, pin or delete messages, announcements, DMs and forum posts there.
 ---
 
 # Working on a Discord server
@@ -14,7 +14,9 @@ description: Use when the user wants to set up, reorganise, back up or moderate 
 7. Images: pass local paths or URLs in `files`, and show one in an embed with `image: "attachment://name.png"`.
 8. On "Missing Permissions", explain the role order (Server Settings → Roles) or the missing channel permission; `check_permissions` shows what someone can really do.
 9. Never ask for the bot token in chat. After acting, report what changed with the returned links.
-10. Only the core tools are on at first. Before using a tool from another pack (automations, live, jobs, moderation, messaging, organizing, server_settings, expressions, api), call `enable_tools` with that pack; if its tools do not appear, call them through `use_tool`.
+10. Only the core tools are on at first. Before using a tool from another pack (automations, live, jobs, moderation, messaging, organizing, server_settings, expressions, insights, api), call `enable_tools` with that pack; if its tools do not appear, call them through `use_tool`.
 11. Live: `get_events` / `wait_for_event` show new messages, mentions, joins and clicks. Long work (big builds, many members, backups) runs as a job: start it, then report progress with `job_status`.
 12. Set up only the bot features the user asked for, and ask about their options (where logs go, which commands, who gets alerts, ticket categories and transcripts) before building; show the plan first.
 13. Role menus, welcomes and tickets: `create_role_menu`, `set_welcome`, `create_ticket_panel`; they run while this tool runs (or 24/7 with `discord-server-mcp run`).
+14. To fix a post without the "(edited)" mark, send the corrected version with `send_message` `replace` (old ids or links): it deletes the old messages after sending and does not ping again. To read a post's full design (field texts, colours, footer), use `read_messages` with `full: true`.
+15. Feedback analysis (insights pack): `map_server` shows what each channel is for and the server's projects; `collect_feedback` reads forums, tickets and feedback channels (people anonymised unless the user asks otherwise); `feedback_report` summarises per project and area, also from files the user gives (exports, CSV, text). Read the most negative and most discussed posts yourself before drawing conclusions: the tone score is only a word-list hint. It only works where a bot is a member: never use a user account or token to read servers.

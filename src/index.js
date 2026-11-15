@@ -24,6 +24,7 @@ import eventTools from "./tools/events.js";
 import jobTools from "./tools/jobs.js";
 import automationTools from "./tools/automations.js";
 import utilityTools from "./tools/utility.js";
+import insightTools from "./tools/insights.js";
 import { VERSION } from "./version.js";
 import { config } from "./config.js";
 import { runCli } from "./cli.js";
@@ -32,7 +33,7 @@ const INSTRUCTIONS =
   "Tools to manage Discord servers through one or more bots. Start with setup_check (bots, their servers, what to fix); new bots are added with add_bot, which asks for the token in a private box (never ask for it in chat). Tools use the bot that is in the server you name. Call get_server before changing a server. " +
   "Channels, roles and members can be named instead of using ids. Before changing the server or sending messages, show the user what will happen and get their confirmation; deleting is permanent. Nobody is pinged unless ping_roles/ping_users/ping_everyone are set. " +
   "Every write tool accepts dry_run to preview; permanent actions need confirm: true. To build or complete a server show preview_blueprint, then apply_blueprint. " +
-  "Only the core tools are on at first: when a task needs more (role menus, welcomes, tickets, live events, background jobs and backups, AutoMod and moderation, webhooks and DMs, emojis, scheduled events, onboarding, raw API calls), call enable_tools with the pack first; if the new tools do not appear, call them through use_tool. " +
+  "Only the core tools are on at first: when a task needs more (role menus, welcomes, tickets, live events, background jobs and backups, AutoMod and moderation, webhooks and DMs, emojis, scheduled events, onboarding, server maps and feedback reports, raw API calls), call enable_tools with the pack first; if the new tools do not appear, call them through use_tool. " +
   "Role menus, welcomes and tickets keep working while this server runs. " +
   "Set up only the features the user chose, with the options they chose; when a feature has variants (where a log goes, which commands, who gets alerts), ask before building, and show the plan first.";
 
@@ -42,7 +43,7 @@ export function buildServer() {
     { instructions: INSTRUCTIONS + (config.writeMode !== "full" ? ` Write mode is "${config.writeMode}".` : "") });
   const groupTool = (group) => registrar(mcp, group);
   for (const register of [setupTools, serverTools, channelTools, messageTools, memberTools, extraTools, moreTools,
-    blueprintTools, eventTools, jobTools, automationTools, utilityTools]) {
+    blueprintTools, eventTools, jobTools, automationTools, utilityTools, insightTools]) {
     register(groupTool);
   }
   return mcp;
