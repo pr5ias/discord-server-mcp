@@ -211,7 +211,7 @@ export function sentiment(text) {
   return Math.round(((pos - neg) / (pos + neg)) * 100) / 100;
 }
 
-const STOP = new Set(("a an the and or but if then so to of in on at for from by with without about as is are was were be been being it its this that these those " +
+export const STOP = new Set(("a an the and or but if then so to of in on at for from by with without about as is are was were be been being it its this that these those " +
   "i me my we our you your he she they them their his her there here what which who when where why how all any some more most very can could would should will just " +
   "also too not no yes do does did done have has had get got make made like one two out up down over again still even only really much many lot lots thing things " +
   "o a os as um uma uns umas de do da dos das em no na nos nas por para com sem que e ou mas se entao muito muita muitos muitas mais menos ja ainda tambem so " +

@@ -26642,13 +26642,13 @@ function initializeContext(params) {
     external: params?.external ?? void 0
   };
 }
-function handleUnrepresentable(schema, ctx, json3, params, message) {
+function handleUnrepresentable(schema, ctx, json4, params, message) {
   const result = typeof ctx.unrepresentable === "function" ? ctx.unrepresentable({ zodSchema: schema, path: params.path, message }) : ctx.unrepresentable;
   if (result === "any")
     return false;
   if (result === void 0 || result === "throw")
     throw new Error(message);
-  Object.assign(json3, result);
+  Object.assign(json4, result);
   return true;
 }
 function processSchema(schema, ctx, _params = { path: [], schemaPath: [] }) {
@@ -26884,12 +26884,12 @@ function foldObjects(members2) {
   }
   return folded;
 }
-function foldIntersection(json3) {
-  const allOf = json3.allOf;
+function foldIntersection(json4) {
+  const allOf = json4.allOf;
   if (!Array.isArray(allOf) || allOf.length < 2)
     return;
   for (const key of FOLDABLE_KEYS)
-    if (key in json3)
+    if (key in json4)
       return;
   const unions = allOf.filter((m) => UNION_KEYS.some((k) => Array.isArray(m[k])));
   let folded = null;
@@ -26908,8 +26908,8 @@ function foldIntersection(json3) {
   }
   if (!folded)
     return;
-  delete json3.allOf;
-  assignProps(json3, folded);
+  delete json4.allOf;
+  assignProps(json4, folded);
 }
 function finalize(ctx, schema) {
   const root = ctx.seen.get(schema);
@@ -26991,20 +26991,20 @@ function finalize(ctx, schema) {
     if (ctx.intersections.length) {
       const carriers = /* @__PURE__ */ new Map();
       for (const seen2 of ctx.seen.values()) {
-        for (const json3 of [seen2.schema, seen2.def]) {
-          const allOf = json3?.allOf;
+        for (const json4 of [seen2.schema, seen2.def]) {
+          const allOf = json4?.allOf;
           if (!Array.isArray(allOf))
             continue;
           const existing = carriers.get(allOf);
           if (existing)
-            existing.push(json3);
+            existing.push(json4);
           else
-            carriers.set(allOf, [json3]);
+            carriers.set(allOf, [json4]);
         }
       }
       for (const allOf of ctx.intersections) {
-        for (const json3 of carriers.get(allOf) ?? [])
-          foldIntersection(json3);
+        for (const json4 of carriers.get(allOf) ?? [])
+          foldIntersection(json4);
       }
     }
   }
@@ -27239,29 +27239,29 @@ var exactPatterns = /* @__PURE__ */ new Map([
 ]);
 var exactPattern = (p) => exactPatterns.get(p) ?? p;
 var stringProcessor = (schema, ctx, _json, _params) => {
-  const json3 = _json;
-  json3.type = "string";
+  const json4 = _json;
+  json4.type = "string";
   const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minLength = minimum;
+    json4.minLength = minimum;
   if (typeof maximum === "number")
-    json3.maxLength = maximum;
+    json4.maxLength = maximum;
   if (format) {
-    json3.format = formatMap[format] ?? format;
-    if (json3.format === "")
-      delete json3.format;
+    json4.format = formatMap[format] ?? format;
+    if (json4.format === "")
+      delete json4.format;
     if (format === "time" || laxFormat) {
-      delete json3.format;
+      delete json4.format;
     }
   }
   if (contentEncoding)
-    json3.contentEncoding = contentEncoding;
+    json4.contentEncoding = contentEncoding;
   if (patterns && patterns.size > 0) {
     const patternList = [...patterns].map(exactPattern);
     if (patternList.length === 1)
-      json3.pattern = patternList[0].source;
+      json4.pattern = patternList[0].source;
     else if (patternList.length > 1) {
-      json3.allOf = [
+      json4.allOf = [
         ...patternList.map((regex) => ({
           ...ctx.target === "draft-07" || ctx.target === "draft-04" || ctx.target === "openapi-3.0" ? { type: "string" } : {},
           pattern: regex.source
@@ -27271,31 +27271,31 @@ var stringProcessor = (schema, ctx, _json, _params) => {
   }
 };
 var numberProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const { minimum, maximum, multipleOf, exclusiveMaximum, exclusiveMinimum, isInt } = aggregateChecks(schema);
-  json3.type = isInt ? "integer" : "number";
+  json4.type = isInt ? "integer" : "number";
   const exMin = typeof exclusiveMinimum === "number" && exclusiveMinimum >= (minimum ?? Number.NEGATIVE_INFINITY);
   const exMax = typeof exclusiveMaximum === "number" && exclusiveMaximum <= (maximum ?? Number.POSITIVE_INFINITY);
   const legacy = ctx.target === "draft-04" || ctx.target === "openapi-3.0";
   if (exMin) {
     if (legacy) {
-      json3.minimum = exclusiveMinimum;
-      json3.exclusiveMinimum = true;
+      json4.minimum = exclusiveMinimum;
+      json4.exclusiveMinimum = true;
     } else {
-      json3.exclusiveMinimum = exclusiveMinimum;
+      json4.exclusiveMinimum = exclusiveMinimum;
     }
   } else if (typeof minimum === "number") {
-    json3.minimum = minimum;
+    json4.minimum = minimum;
   }
   if (exMax) {
     if (legacy) {
-      json3.maximum = exclusiveMaximum;
-      json3.exclusiveMaximum = true;
+      json4.maximum = exclusiveMaximum;
+      json4.exclusiveMaximum = true;
     } else {
-      json3.exclusiveMaximum = exclusiveMaximum;
+      json4.exclusiveMaximum = exclusiveMaximum;
     }
   } else if (typeof maximum === "number") {
-    json3.maximum = maximum;
+    json4.maximum = maximum;
   }
   if (multipleOf) {
     const divisors = /* @__PURE__ */ new Set();
@@ -27303,75 +27303,75 @@ var numberProcessor = (schema, ctx, _json, params) => {
       if (Number.isFinite(divisor) && divisor !== 0)
         divisors.add(Math.abs(divisor));
       else
-        handleUnrepresentable(schema, ctx, json3, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
+        handleUnrepresentable(schema, ctx, json4, params, `A multipleOf divisor of ${divisor} cannot be represented in JSON Schema`);
     }
     const [first, ...rest2] = divisors;
     if (first !== void 0)
-      json3.multipleOf = first;
+      json4.multipleOf = first;
     if (rest2.length)
-      json3.allOf = [...json3.allOf ?? [], ...rest2.map((m) => ({ multipleOf: m }))];
+      json4.allOf = [...json4.allOf ?? [], ...rest2.map((m) => ({ multipleOf: m }))];
   }
 };
-var booleanProcessor = (_schema, _ctx, json3, _params) => {
-  json3.type = "boolean";
+var booleanProcessor = (_schema, _ctx, json4, _params) => {
+  json4.type = "boolean";
 };
-var bigintProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "BigInt cannot be represented in JSON Schema");
+var bigintProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "BigInt cannot be represented in JSON Schema");
 };
-var symbolProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Symbols cannot be represented in JSON Schema");
+var symbolProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Symbols cannot be represented in JSON Schema");
 };
-var nullProcessor = (_schema, ctx, json3, _params) => {
+var nullProcessor = (_schema, ctx, json4, _params) => {
   if (ctx.target === "openapi-3.0") {
-    json3.type = "string";
-    json3.nullable = true;
-    json3.enum = [null];
+    json4.type = "string";
+    json4.nullable = true;
+    json4.enum = [null];
   } else {
-    json3.type = "null";
+    json4.type = "null";
   }
 };
-var undefinedProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Undefined cannot be represented in JSON Schema");
+var undefinedProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Undefined cannot be represented in JSON Schema");
 };
-var voidProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Void cannot be represented in JSON Schema");
+var voidProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Void cannot be represented in JSON Schema");
 };
-var neverProcessor = (_schema, _ctx, json3, _params) => {
-  json3.not = {};
+var neverProcessor = (_schema, _ctx, json4, _params) => {
+  json4.not = {};
 };
 var anyProcessor = (_schema, _ctx, _json, _params) => {
 };
 var unknownProcessor = (_schema, _ctx, _json, _params) => {
 };
-var dateProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Date cannot be represented in JSON Schema");
+var dateProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Date cannot be represented in JSON Schema");
 };
-var enumProcessor = (schema, _ctx, json3, _params) => {
+var enumProcessor = (schema, _ctx, json4, _params) => {
   const def = schema._zod.def;
   const values = getEnumValues(def.entries);
   if (values.length === 0) {
-    json3.not = {};
+    json4.not = {};
     return;
   }
   if (values.every((v) => typeof v === "number"))
-    json3.type = "number";
+    json4.type = "number";
   if (values.every((v) => typeof v === "string"))
-    json3.type = "string";
-  json3.enum = values;
+    json4.type = "string";
+  json4.enum = values;
 };
-var literalProcessor = (schema, ctx, json3, params) => {
+var literalProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   if (def.values.length === 0) {
-    json3.not = {};
+    json4.not = {};
     return;
   }
   const vals = [];
   for (const val of def.values) {
     if (val === void 0) {
-      if (handleUnrepresentable(schema, ctx, json3, params, "Literal `undefined` cannot be represented in JSON Schema"))
+      if (handleUnrepresentable(schema, ctx, json4, params, "Literal `undefined` cannot be represented in JSON Schema"))
         return;
     } else if (typeof val === "bigint") {
-      if (handleUnrepresentable(schema, ctx, json3, params, "BigInt literals cannot be represented in JSON Schema"))
+      if (handleUnrepresentable(schema, ctx, json4, params, "BigInt literals cannot be represented in JSON Schema"))
         return;
       vals.push(Number(val));
     } else {
@@ -27381,37 +27381,37 @@ var literalProcessor = (schema, ctx, json3, params) => {
   if (vals.length === 0) {
   } else if (vals.length === 1) {
     const val = vals[0];
-    json3.type = val === null ? "null" : typeof val;
+    json4.type = val === null ? "null" : typeof val;
     if (ctx.target === "draft-04" || ctx.target === "openapi-3.0") {
-      json3.enum = [val];
+      json4.enum = [val];
     } else {
-      json3.const = val;
+      json4.const = val;
     }
   } else {
     if (vals.every((v) => typeof v === "number"))
-      json3.type = "number";
+      json4.type = "number";
     if (vals.every((v) => typeof v === "string"))
-      json3.type = "string";
+      json4.type = "string";
     if (vals.every((v) => typeof v === "boolean"))
-      json3.type = "boolean";
+      json4.type = "boolean";
     if (vals.every((v) => v === null))
-      json3.type = "null";
-    json3.enum = vals;
+      json4.type = "null";
+    json4.enum = vals;
   }
 };
-var nanProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "NaN cannot be represented in JSON Schema");
+var nanProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "NaN cannot be represented in JSON Schema");
 };
-var templateLiteralProcessor = (schema, _ctx, json3, _params) => {
-  const _json = json3;
+var templateLiteralProcessor = (schema, _ctx, json4, _params) => {
+  const _json = json4;
   const pattern = schema._zod.pattern;
   if (!pattern)
     throw new Error("Pattern not found in template literal");
   _json.type = "string";
   _json.pattern = pattern.source;
 };
-var fileProcessor = (schema, _ctx, json3, _params) => {
-  const _json = json3;
+var fileProcessor = (schema, _ctx, json4, _params) => {
+  const _json = json4;
   _json.type = "string";
   _json.format = "binary";
   _json.contentEncoding = "binary";
@@ -27429,34 +27429,34 @@ var fileProcessor = (schema, _ctx, json3, _params) => {
   else
     _json.anyOf = mime.map((m) => ({ contentMediaType: m }));
 };
-var successProcessor = (_schema, _ctx, json3, _params) => {
-  json3.type = "boolean";
+var successProcessor = (_schema, _ctx, json4, _params) => {
+  json4.type = "boolean";
 };
-var customProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Custom types cannot be represented in JSON Schema");
+var customProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Custom types cannot be represented in JSON Schema");
 };
-var functionProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Function types cannot be represented in JSON Schema");
+var functionProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Function types cannot be represented in JSON Schema");
 };
-var transformProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Transforms cannot be represented in JSON Schema");
+var transformProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Transforms cannot be represented in JSON Schema");
 };
-var mapProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Map cannot be represented in JSON Schema");
+var mapProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Map cannot be represented in JSON Schema");
 };
-var setProcessor = (schema, ctx, json3, params) => {
-  handleUnrepresentable(schema, ctx, json3, params, "Set cannot be represented in JSON Schema");
+var setProcessor = (schema, ctx, json4, params) => {
+  handleUnrepresentable(schema, ctx, json4, params, "Set cannot be represented in JSON Schema");
 };
 var arrayProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
   const { minimum, maximum } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minItems = minimum;
+    json4.minItems = minimum;
   if (typeof maximum === "number")
-    json3.maxItems = maximum;
-  json3.type = "array";
-  json3.items = processSchema(def.element, ctx, {
+    json4.maxItems = maximum;
+  json4.type = "array";
+  json4.items = processSchema(def.element, ctx, {
     ...params,
     path: [...params.path, "items"]
   });
@@ -27472,17 +27472,17 @@ function inputOptin(schema) {
   return schema._zod.optin;
 }
 var objectProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
   const shape = def.shape;
   const symbolKeys = Object.getOwnPropertySymbols(shape);
-  if (symbolKeys.length && handleUnrepresentable(schema, ctx, json3, params, "Symbol keys cannot be represented in JSON Schema")) {
+  if (symbolKeys.length && handleUnrepresentable(schema, ctx, json4, params, "Symbol keys cannot be represented in JSON Schema")) {
     return;
   }
-  json3.type = "object";
-  json3.properties = {};
+  json4.type = "object";
+  json4.properties = {};
   for (const key in shape) {
-    assignProp(json3.properties, key, processSchema(shape[key], ctx, {
+    assignProp(json4.properties, key, processSchema(shape[key], ctx, {
       ...params,
       path: [...params.path, "properties", key]
     }));
@@ -27495,21 +27495,21 @@ var objectProcessor = (schema, ctx, _json, params) => {
     }
   }
   if (requiredKeys.length > 0) {
-    json3.required = requiredKeys;
+    json4.required = requiredKeys;
   }
   if (def.catchall?._zod.def.type === "never") {
-    json3.additionalProperties = false;
+    json4.additionalProperties = false;
   } else if (!def.catchall) {
     if (ctx.io === "output")
-      json3.additionalProperties = false;
+      json4.additionalProperties = false;
   } else if (def.catchall) {
-    json3.additionalProperties = processSchema(def.catchall, ctx, {
+    json4.additionalProperties = processSchema(def.catchall, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
   }
 };
-var unionProcessor = (schema, ctx, json3, params) => {
+var unionProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   const isExclusive = def.inclusive === false;
   const options = def.options.map((x, i) => processSchema(x, ctx, {
@@ -27517,12 +27517,12 @@ var unionProcessor = (schema, ctx, json3, params) => {
     path: [...params.path, isExclusive ? "oneOf" : "anyOf", i]
   }));
   if (isExclusive) {
-    json3.oneOf = options;
+    json4.oneOf = options;
   } else {
-    json3.anyOf = options;
+    json4.anyOf = options;
   }
 };
-var intersectionProcessor = (schema, ctx, json3, params) => {
+var intersectionProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   const a = processSchema(def.left, ctx, {
     ...params,
@@ -27537,13 +27537,13 @@ var intersectionProcessor = (schema, ctx, json3, params) => {
     ...isSimpleIntersection(a) ? a.allOf : [a],
     ...isSimpleIntersection(b) ? b.allOf : [b]
   ];
-  json3.allOf = allOf;
+  json4.allOf = allOf;
   ctx.intersections.push(allOf);
 };
 var tupleProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
-  json3.type = "array";
+  json4.type = "array";
   const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
   const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
   const prefixItems = def.items.map((x, i) => processSchema(x, ctx, {
@@ -27565,70 +27565,70 @@ var tupleProcessor = (schema, ctx, _json, params) => {
   const maxItems = def.items.length;
   const isClosed = !def.rest;
   if (ctx.target === "draft-2020-12") {
-    json3.prefixItems = prefixItems;
+    json4.prefixItems = prefixItems;
     if (isClosed) {
-      json3.items = false;
+      json4.items = false;
     } else if (rest2) {
-      json3.items = rest2;
+      json4.items = rest2;
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json4.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json4.maxItems = maxItems;
   } else if (ctx.target === "openapi-3.0") {
-    json3.items = {
+    json4.items = {
       anyOf: prefixItems
     };
     if (rest2) {
-      json3.items.anyOf.push(rest2);
+      json4.items.anyOf.push(rest2);
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json4.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json4.maxItems = maxItems;
   } else {
-    json3.items = prefixItems;
+    json4.items = prefixItems;
     if (isClosed) {
-      json3.additionalItems = false;
+      json4.additionalItems = false;
     } else if (rest2) {
-      json3.additionalItems = rest2;
+      json4.additionalItems = rest2;
     }
     if (minItems > 0)
-      json3.minItems = minItems;
+      json4.minItems = minItems;
     if (isClosed)
-      json3.maxItems = maxItems;
+      json4.maxItems = maxItems;
   }
   const { minimum, maximum } = aggregateChecks(schema);
   if (typeof minimum === "number")
-    json3.minItems = minimum;
+    json4.minItems = minimum;
   if (typeof maximum === "number")
-    json3.maxItems = maximum;
+    json4.maxItems = maximum;
 };
-function stringifyKeyNames(bySchema, json3, visited) {
-  if (json3.$ref) {
-    if (visited.has(json3))
-      return json3;
-    visited.add(json3);
-    const def = bySchema.get(json3)?.def;
+function stringifyKeyNames(bySchema, json4, visited) {
+  if (json4.$ref) {
+    if (visited.has(json4))
+      return json4;
+    visited.add(json4);
+    const def = bySchema.get(json4)?.def;
     if (!def)
-      return json3;
+      return json4;
     const inlined = stringifyKeyNames(bySchema, def, visited);
-    return inlined === def ? json3 : inlined;
+    return inlined === def ? json4 : inlined;
   }
   for (const keyword of ["anyOf", "oneOf"]) {
-    const branches = json3[keyword];
+    const branches = json4[keyword];
     if (!Array.isArray(branches))
       continue;
     const mapped = branches.map((branch) => stringifyKeyNames(bySchema, branch, visited));
     if (mapped.some((branch, i) => branch !== branches[i]))
-      json3 = { ...json3, [keyword]: mapped };
+      json4 = { ...json4, [keyword]: mapped };
   }
-  const types = Array.isArray(json3.type) ? json3.type : [json3.type];
+  const types = Array.isArray(json4.type) ? json4.type : [json4.type];
   const numericType = !types.includes("string") && types.some((t) => t === "number" || t === "integer");
-  const values = json3.enum ?? (json3.const !== void 0 ? [json3.const] : void 0);
+  const values = json4.enum ?? (json4.const !== void 0 ? [json4.const] : void 0);
   if (!numericType && !values?.some((v) => typeof v === "number"))
-    return json3;
-  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest2 } = json3;
+    return json4;
+  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest2 } = json4;
   if (rest2.enum)
     rest2.enum = rest2.enum.map((v) => typeof v === "number" ? String(v) : v);
   else if (typeof rest2.const === "number")
@@ -27668,9 +27668,9 @@ function rewriteKeyNames(ctx) {
   }
 }
 var recordProcessor = (schema, ctx, _json, params) => {
-  const json3 = _json;
+  const json4 = _json;
   const def = schema._zod.def;
-  json3.type = "object";
+  json4.type = "object";
   const keyType = def.keyType;
   const patterns = aggregateChecks(keyType).patterns;
   if (def.mode === "loose" && patterns && patterns.size > 0) {
@@ -27678,13 +27678,13 @@ var recordProcessor = (schema, ctx, _json, params) => {
       ...params,
       path: [...params.path, "patternProperties", "*"]
     });
-    json3.patternProperties = {};
+    json4.patternProperties = {};
     for (const pattern of patterns) {
-      assignProp(json3.patternProperties, exactPattern(pattern).source, valueSchema);
+      assignProp(json4.patternProperties, exactPattern(pattern).source, valueSchema);
     }
   } else {
     if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
-      json3.propertyNames = processSchema(def.keyType, ctx, {
+      json4.propertyNames = processSchema(def.keyType, ctx, {
         ...params,
         path: [...params.path, "propertyNames"]
       });
@@ -27696,7 +27696,7 @@ var recordProcessor = (schema, ctx, _json, params) => {
       }
       pending.push(schema);
     }
-    json3.additionalProperties = processSchema(def.valueType, ctx, {
+    json4.additionalProperties = processSchema(def.valueType, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
@@ -27706,19 +27706,19 @@ var recordProcessor = (schema, ctx, _json, params) => {
   if (keyValues && !def.partial && !omittableOnInput) {
     const validKeyValues = [...keyValues].filter((v) => typeof v === "string" || typeof v === "number");
     if (validKeyValues.length > 0) {
-      json3.required = validKeyValues.map(String);
+      json4.required = validKeyValues.map(String);
     }
   }
 };
-var nullableProcessor = (schema, ctx, json3, params) => {
+var nullableProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   const inner = processSchema(def.innerType, ctx, params);
   const seen2 = ctx.seen.get(schema);
   if (ctx.target === "openapi-3.0") {
     seen2.ref = def.innerType;
-    json3.nullable = true;
+    json4.nullable = true;
   } else {
-    json3.anyOf = [inner, { type: "null" }];
+    json4.anyOf = [inner, { type: "null" }];
   }
 };
 var nonoptionalProcessor = (schema, ctx, _json, params) => {
@@ -27728,7 +27728,7 @@ var nonoptionalProcessor = (schema, ctx, _json, params) => {
   seen2.ref = def.innerType;
 };
 var UNREPRESENTABLE_DEFAULT = /* @__PURE__ */ Symbol();
-function serializeDefaultValue(value, schema, ctx, json3, params) {
+function serializeDefaultValue(value, schema, ctx, json4, params) {
   let unrepresentable = false;
   const serialized = JSON.stringify(value, (_, val) => {
     if (typeof val !== "bigint")
@@ -27738,30 +27738,30 @@ function serializeDefaultValue(value, schema, ctx, json3, params) {
   });
   if (!unrepresentable)
     return JSON.parse(serialized);
-  handleUnrepresentable(schema, ctx, json3, params, "BigInt defaults cannot be represented in JSON Schema");
+  handleUnrepresentable(schema, ctx, json4, params, "BigInt defaults cannot be represented in JSON Schema");
   return UNREPRESENTABLE_DEFAULT;
 }
-var defaultProcessor = (schema, ctx, json3, params) => {
+var defaultProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen2 = ctx.seen.get(schema);
   seen2.ref = def.innerType;
-  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json3, params);
+  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json4, params);
   if (value !== UNREPRESENTABLE_DEFAULT)
-    json3.default = value;
+    json4.default = value;
 };
-var prefaultProcessor = (schema, ctx, json3, params) => {
+var prefaultProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen2 = ctx.seen.get(schema);
   seen2.ref = def.innerType;
   if (ctx.io !== "input")
     return;
-  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json3, params);
+  const value = serializeDefaultValue(def.defaultValue, schema, ctx, json4, params);
   if (value !== UNREPRESENTABLE_DEFAULT)
-    json3._prefault = value;
+    json4._prefault = value;
 };
-var catchProcessor = (schema, ctx, json3, params) => {
+var catchProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen2 = ctx.seen.get(schema);
@@ -27770,10 +27770,10 @@ var catchProcessor = (schema, ctx, json3, params) => {
   try {
     catchValue = def.catchValue(void 0);
   } catch {
-    handleUnrepresentable(schema, ctx, json3, params, "Dynamic catch values are not supported in JSON Schema");
+    handleUnrepresentable(schema, ctx, json4, params, "Dynamic catch values are not supported in JSON Schema");
     return;
   }
-  json3.default = catchValue;
+  json4.default = catchValue;
 };
 var pipeProcessor = (schema, ctx, _json, params) => {
   const def = schema._zod.def;
@@ -27783,12 +27783,12 @@ var pipeProcessor = (schema, ctx, _json, params) => {
   const seen2 = ctx.seen.get(schema);
   seen2.ref = innerType;
 };
-var readonlyProcessor = (schema, ctx, json3, params) => {
+var readonlyProcessor = (schema, ctx, json4, params) => {
   const def = schema._zod.def;
   processSchema(def.innerType, ctx, params);
   const seen2 = ctx.seen.get(schema);
   seen2.ref = def.innerType;
-  json3.readOnly = true;
+  json4.readOnly = true;
 };
 var promiseProcessor = (schema, ctx, _json, params) => {
   const def = schema._zod.def;
@@ -29074,7 +29074,7 @@ var _ZodString = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodString.init(inst, def);
     ZodType2.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => stringProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => stringProcessor(inst, ctx, json4, params);
   },
   /* @__PURE__ */ util_exports.derived({
     format: (inst) => aggregateChecks(inst).format ?? null,
@@ -29433,7 +29433,7 @@ var ZodNumber2 = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodNumber.init(inst, def);
     ZodType2.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => numberProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => numberProcessor(inst, ctx, json4, params);
     inst.isFinite = true;
   },
   /* @__PURE__ */ util_exports.derived({
@@ -29523,7 +29523,7 @@ function uint32(params) {
 var ZodBoolean2 = /* @__PURE__ */ $constructor("ZodBoolean", (inst, def) => {
   $ZodBoolean.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => booleanProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => booleanProcessor(inst, ctx, json4, params);
 });
 function boolean2(params) {
   return _boolean(ZodBoolean2, params);
@@ -29533,7 +29533,7 @@ var ZodBigInt2 = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodBigInt.init(inst, def);
     ZodType2.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => bigintProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => bigintProcessor(inst, ctx, json4, params);
   },
   /* @__PURE__ */ util_exports.derived({
     minValue: (inst) => aggregateChecks(inst).minimum ?? null,
@@ -29591,7 +29591,7 @@ function uint64(params) {
 var ZodSymbol2 = /* @__PURE__ */ $constructor("ZodSymbol", (inst, def) => {
   $ZodSymbol.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => symbolProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => symbolProcessor(inst, ctx, json4, params);
 });
 function symbol(params) {
   return _symbol(ZodSymbol2, params);
@@ -29599,7 +29599,7 @@ function symbol(params) {
 var ZodUndefined2 = /* @__PURE__ */ $constructor("ZodUndefined", (inst, def) => {
   $ZodUndefined.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => undefinedProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => undefinedProcessor(inst, ctx, json4, params);
 });
 function _undefined3(params) {
   return _undefined2(ZodUndefined2, params);
@@ -29607,7 +29607,7 @@ function _undefined3(params) {
 var ZodNull2 = /* @__PURE__ */ $constructor("ZodNull", (inst, def) => {
   $ZodNull.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nullProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nullProcessor(inst, ctx, json4, params);
 });
 function _null3(params) {
   return _null2(ZodNull2, params);
@@ -29615,7 +29615,7 @@ function _null3(params) {
 var ZodAny2 = /* @__PURE__ */ $constructor("ZodAny", (inst, def) => {
   $ZodAny.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => anyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => anyProcessor(inst, ctx, json4, params);
 });
 function any() {
   return _any(ZodAny2);
@@ -29623,7 +29623,7 @@ function any() {
 var ZodUnknown2 = /* @__PURE__ */ $constructor("ZodUnknown", (inst, def) => {
   $ZodUnknown.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unknownProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => unknownProcessor(inst, ctx, json4, params);
 });
 function unknown() {
   return _unknown(ZodUnknown2);
@@ -29631,7 +29631,7 @@ function unknown() {
 var ZodNever2 = /* @__PURE__ */ $constructor("ZodNever", (inst, def) => {
   $ZodNever.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => neverProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => neverProcessor(inst, ctx, json4, params);
 });
 function never(params) {
   return _never(ZodNever2, params);
@@ -29639,7 +29639,7 @@ function never(params) {
 var ZodVoid2 = /* @__PURE__ */ $constructor("ZodVoid", (inst, def) => {
   $ZodVoid.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => voidProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => voidProcessor(inst, ctx, json4, params);
 });
 function _void2(params) {
   return _void(ZodVoid2, params);
@@ -29649,7 +29649,7 @@ var ZodDate2 = /* @__PURE__ */ $constructor(
   (inst, def) => {
     $ZodDate.init(inst, def);
     ZodType2.init(inst, def);
-    inst._zod.processJSONSchema = (ctx, json3, params) => dateProcessor(inst, ctx, json3, params);
+    inst._zod.processJSONSchema = (ctx, json4, params) => dateProcessor(inst, ctx, json4, params);
     inst.min = (value, params) => inst.check(_gte(value, params));
     inst.max = (value, params) => inst.check(_lte(value, params));
   },
@@ -29671,7 +29671,7 @@ var ZodArray2 = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodArray.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => arrayProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => arrayProcessor(inst, ctx, json4, params);
   inst.element = def.element;
 }, {
   min(n, params) {
@@ -29701,7 +29701,7 @@ var ZodObject2 = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodObjectJIT.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => objectProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => objectProcessor(inst, ctx, json4, params);
   util_exports.installLazyProp(inst, "shape", (self) => self._zod.def.shape, false);
 }, {
   keyof() {
@@ -29774,7 +29774,7 @@ function looseObject(shape, params) {
 var ZodUnion2 = /* @__PURE__ */ $constructor("ZodUnion", (inst, def) => {
   $ZodUnion.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => unionProcessor(inst, ctx, json4, params);
   inst.options = def.options;
 });
 function union(options, params) {
@@ -29787,7 +29787,7 @@ function union(options, params) {
 var ZodXor = /* @__PURE__ */ $constructor("ZodXor", (inst, def) => {
   ZodUnion2.init(inst, def);
   $ZodXor.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => unionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => unionProcessor(inst, ctx, json4, params);
   inst.options = def.options;
 });
 function xor(options, params) {
@@ -29813,7 +29813,7 @@ function discriminatedUnion(discriminator, options, params) {
 var ZodIntersection2 = /* @__PURE__ */ $constructor("ZodIntersection", (inst, def) => {
   $ZodIntersection.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => intersectionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => intersectionProcessor(inst, ctx, json4, params);
 });
 function intersection(left, right) {
   return new ZodIntersection2({
@@ -29826,7 +29826,7 @@ var ZodTuple2 = /* @__PURE__ */ $constructor("ZodTuple", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodTuple.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => tupleProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => tupleProcessor(inst, ctx, json4, params);
 }, {
   rest(rest2) {
     return this.clone({
@@ -29859,7 +29859,7 @@ var ZodRecord2 = /* @__PURE__ */ $constructor("ZodRecord", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodRecord.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => recordProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => recordProcessor(inst, ctx, json4, params);
   inst.keyType = def.keyType;
   inst.valueType = def.valueType;
 });
@@ -29901,7 +29901,7 @@ var ZodMap2 = /* @__PURE__ */ $constructor("ZodMap", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodMap.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => mapProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => mapProcessor(inst, ctx, json4, params);
   inst.keyType = def.keyType;
   inst.valueType = def.valueType;
   inst.min = (...args) => inst.check(_minSize(...args));
@@ -29921,7 +29921,7 @@ var ZodSet2 = /* @__PURE__ */ $constructor("ZodSet", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodSet.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => setProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => setProcessor(inst, ctx, json4, params);
   inst.min = (...args) => inst.check(_minSize(...args));
   inst.nonempty = (params) => inst.check(_minSize(1, params));
   inst.max = (...args) => inst.check(_maxSize(...args));
@@ -29937,7 +29937,7 @@ function set(valueType, params) {
 var ZodEnum2 = /* @__PURE__ */ $constructor("ZodEnum", (inst, def) => {
   $ZodEnum.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => enumProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => enumProcessor(inst, ctx, json4, params);
   inst.enum = def.entries;
   inst.options = [...inst._zod.values];
   const keys = new Set(Object.keys(def.entries));
@@ -29990,7 +29990,7 @@ function nativeEnum(entries, params) {
 var ZodLiteral2 = /* @__PURE__ */ $constructor("ZodLiteral", (inst, def) => {
   $ZodLiteral.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => literalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => literalProcessor(inst, ctx, json4, params);
   inst.values = new Set(def.values);
   Object.defineProperty(inst, "value", {
     get() {
@@ -30011,7 +30011,7 @@ function literal(value, params) {
 var ZodFile = /* @__PURE__ */ $constructor("ZodFile", (inst, def) => {
   $ZodFile.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => fileProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => fileProcessor(inst, ctx, json4, params);
   inst.min = (size, params) => inst.check(_minSize(size, params));
   inst.max = (size, params) => inst.check(_maxSize(size, params));
   inst.mime = (types, params) => inst.check(_mime(Array.isArray(types) ? types : [types], params));
@@ -30023,7 +30023,7 @@ var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def) => {
   _ensureDefaultMemoizer();
   $ZodTransform.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => transformProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => transformProcessor(inst, ctx, json4, params);
   inst._zod.parse = (payload, _ctx) => {
     if (_ctx.direction === "backward") {
       throw new $ZodEncodeError(inst.constructor.name);
@@ -30062,7 +30062,7 @@ function transform(fn) {
 var ZodOptional2 = /* @__PURE__ */ $constructor("ZodOptional", (inst, def) => {
   $ZodOptional.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => optionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => optionalProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function optional(innerType) {
@@ -30074,7 +30074,7 @@ function optional(innerType) {
 var ZodExactOptional = /* @__PURE__ */ $constructor("ZodExactOptional", (inst, def) => {
   $ZodExactOptional.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => optionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => optionalProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function exactOptional(innerType) {
@@ -30086,7 +30086,7 @@ function exactOptional(innerType) {
 var ZodNullable2 = /* @__PURE__ */ $constructor("ZodNullable", (inst, def) => {
   $ZodNullable.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nullableProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nullableProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function nullable(innerType) {
@@ -30101,7 +30101,7 @@ function nullish2(innerType) {
 var ZodDefault2 = /* @__PURE__ */ $constructor("ZodDefault", (inst, def) => {
   $ZodDefault.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => defaultProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => defaultProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeDefault = inst.unwrap;
 });
@@ -30117,7 +30117,7 @@ function _default2(innerType, defaultValue) {
 var ZodPrefault = /* @__PURE__ */ $constructor("ZodPrefault", (inst, def) => {
   $ZodPrefault.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => prefaultProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => prefaultProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function prefault(innerType, defaultValue) {
@@ -30132,7 +30132,7 @@ function prefault(innerType, defaultValue) {
 var ZodNonOptional = /* @__PURE__ */ $constructor("ZodNonOptional", (inst, def) => {
   $ZodNonOptional.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nonoptionalProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nonoptionalProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function nonoptional(innerType, params) {
@@ -30145,7 +30145,7 @@ function nonoptional(innerType, params) {
 var ZodSuccess = /* @__PURE__ */ $constructor("ZodSuccess", (inst, def) => {
   $ZodSuccess.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => successProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => successProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function success(innerType) {
@@ -30157,7 +30157,7 @@ function success(innerType) {
 var ZodCatch2 = /* @__PURE__ */ $constructor("ZodCatch", (inst, def) => {
   $ZodCatch.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => catchProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => catchProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeCatch = inst.unwrap;
 });
@@ -30171,7 +30171,7 @@ function _catch2(innerType, catchValue) {
 var ZodNaN2 = /* @__PURE__ */ $constructor("ZodNaN", (inst, def) => {
   $ZodNaN.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => nanProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => nanProcessor(inst, ctx, json4, params);
 });
 function nan(params) {
   return _nan(ZodNaN2, params);
@@ -30179,7 +30179,7 @@ function nan(params) {
 var ZodPipe = /* @__PURE__ */ $constructor("ZodPipe", (inst, def) => {
   $ZodPipe.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => pipeProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => pipeProcessor(inst, ctx, json4, params);
   inst.in = def.in;
   inst.out = def.out;
 });
@@ -30221,7 +30221,7 @@ var ZodPreprocess = /* @__PURE__ */ $constructor("ZodPreprocess", (inst, def) =>
 var ZodReadonly2 = /* @__PURE__ */ $constructor("ZodReadonly", (inst, def) => {
   $ZodReadonly.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => readonlyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => readonlyProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function readonly(innerType) {
@@ -30233,7 +30233,7 @@ function readonly(innerType) {
 var ZodTemplateLiteral = /* @__PURE__ */ $constructor("ZodTemplateLiteral", (inst, def) => {
   $ZodTemplateLiteral.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => templateLiteralProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => templateLiteralProcessor(inst, ctx, json4, params);
 });
 function templateLiteral(parts, params) {
   return new ZodTemplateLiteral({
@@ -30245,7 +30245,7 @@ function templateLiteral(parts, params) {
 var ZodLazy2 = /* @__PURE__ */ $constructor("ZodLazy", (inst, def) => {
   $ZodLazy.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => lazyProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => lazyProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.getter();
 });
 function lazy(getter) {
@@ -30257,7 +30257,7 @@ function lazy(getter) {
 var ZodPromise2 = /* @__PURE__ */ $constructor("ZodPromise", (inst, def) => {
   $ZodPromise.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => promiseProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => promiseProcessor(inst, ctx, json4, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
 function promise(innerType) {
@@ -30269,7 +30269,7 @@ function promise(innerType) {
 var ZodFunction2 = /* @__PURE__ */ $constructor("ZodFunction", (inst, def) => {
   $ZodFunction.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => functionProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => functionProcessor(inst, ctx, json4, params);
 });
 function _function(params) {
   return new ZodFunction2({
@@ -30281,7 +30281,7 @@ function _function(params) {
 var ZodCustom = /* @__PURE__ */ $constructor("ZodCustom", (inst, def) => {
   $ZodCustom.init(inst, def);
   ZodType2.init(inst, def);
-  inst._zod.processJSONSchema = (ctx, json3, params) => customProcessor(inst, ctx, json3, params);
+  inst._zod.processJSONSchema = (ctx, json4, params) => customProcessor(inst, ctx, json4, params);
 });
 function check(fn) {
   const ch = new $ZodCheck({
@@ -36754,8 +36754,8 @@ var StdioServerTransport = class {
   }
   send(message) {
     return new Promise((resolve) => {
-      const json3 = serializeMessage(message);
-      if (this._stdout.write(json3)) {
+      const json4 = serializeMessage(message);
+      if (this._stdout.write(json4)) {
         resolve();
       } else {
         this._stdout.once("drain", resolve);
@@ -46319,6 +46319,7 @@ ${tx("verify_click")}` : rulesCh ? text("verify_with_channel", { lang: a.languag
 
 // src/tools/insights.js
 import { mkdirSync as mkdirSync7, writeFileSync as writeFileSync6, readFileSync as readFileSync7, existsSync as existsSync3 } from "node:fs";
+import { spawn } from "node:child_process";
 import { homedir as homedir7 } from "node:os";
 import { join as join7, basename as basename2 } from "node:path";
 
@@ -46510,17 +46511,17 @@ var TYPE = { 0: "text", 2: "voice", 5: "announcement", 13: "stage", 15: "forum",
 function mermaidMap(map2, title = "Server") {
   const ids = /* @__PURE__ */ new Map();
   const id = (s) => ids.has(s) ? ids.get(s) : (ids.set(s, `n${ids.size + 1}`), ids.get(s));
-  const esc3 = (s) => s.replace(/"/g, "'");
-  const lines = ["flowchart LR", `  S["${esc3(title)}"]`];
+  const esc4 = (s) => s.replace(/"/g, "'");
+  const lines = ["flowchart LR", `  S["${esc4(title)}"]`];
   for (const [area, list] of Object.entries(map2.areas)) {
     if (area === "voice") continue;
     lines.push(`  ${id("a" + area)}(["${area}"])`, `  S --> ${id("a" + area)}`);
     for (const name of list.slice(0, 12)) {
-      lines.push(`  ${id("c" + name)}["#${esc3(name)}"]`, `  ${id("a" + area)} --> ${id("c" + name)}`);
+      lines.push(`  ${id("c" + name)}["#${esc4(name)}"]`, `  ${id("a" + area)} --> ${id("c" + name)}`);
     }
   }
   for (const p of map2.projects) {
-    lines.push(`  ${id("p" + p.name)}{{"${esc3(p.name)}"}}`);
+    lines.push(`  ${id("p" + p.name)}{{"${esc4(p.name)}"}}`);
     for (const c of map2.channels.filter((r) => r.projects.includes(p.name) || r.project_tags?.length)) {
       if (c.projects.includes(p.name) || c.project_tags?.some((t) => strip(t).includes(p.match[0]))) lines.push(`  ${id("p" + p.name)} -.- ${id("c" + c.name)}`);
     }
@@ -46912,6 +46913,503 @@ function enrichItems(items, { projects = [], anonymize = true } = {}) {
   });
 }
 
+// src/report-html.js
+var esc3 = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+var json3 = (v) => JSON.stringify(v).replace(/</g, "\\u003c");
+function reportHtml({ title, server: server2, generated, items, map: map2, repeated, stop }) {
+  const data3 = {
+    title,
+    server: server2,
+    generated,
+    items: items.map((i) => ({
+      k: i.kind,
+      a: i.area,
+      c: i.channel,
+      t: i.title,
+      x: (i.text || "").slice(0, 1500),
+      p: i.projects || [],
+      s: i.status || [],
+      g: i.tags || [],
+      au: i.author,
+      r: i.reactions || 0,
+      rp: i.replies ?? null,
+      d: i.created,
+      l: i.link,
+      tone: i.sentiment ?? 0
+    })),
+    map: map2 ? { projects: map2.projects.map((p) => p.name), channels: map2.channels.filter((c) => c.area !== "voice").map((c) => ({ n: c.name, a: c.area, p: c.projects, f: c.feedback })) } : null,
+    repeated: repeated || [],
+    stop: [...stop || []]
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc3(title)}</title>
+<style>${CSS}</style>
+</head>
+<body>
+<div class="viz-root">
+  <header class="top">
+    <div>
+      <h1>${esc3(title)}</h1>
+      <p class="sub">${esc3(server2)} \xB7 generated ${esc3(generated.replace("T", " ").slice(0, 16))} \xB7 <span id="scope"></span></p>
+    </div>
+    <button id="theme" type="button" class="ghost" aria-label="Switch light or dark theme">\u25D0 Theme</button>
+  </header>
+
+  <nav class="filters" aria-label="Filters">
+    <label>Period <select id="f-range"><option value="all">All time</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option></select></label>
+    <label>Project <select id="f-project"></select></label>
+    <label>Area <select id="f-area"></select></label>
+    <label class="grow">Search <input id="f-search" type="search" placeholder="Words in titles or posts"></label>
+  </nav>
+
+  <section class="tiles" id="tiles" aria-label="Key numbers"></section>
+
+  <section class="grid">
+    <figure class="card wide"><figcaption><h2>Feedback by project</h2><p>Posts per project, split by area</p></figcaption><div id="c-projects" class="chart"></div></figure>
+    <figure class="card"><figcaption><h2>Tone by project</h2><p>Average tone of posts and replies, \u22121 negative \u2026 +1 positive</p></figcaption><div id="c-tone" class="chart"></div></figure>
+    <figure class="card"><figcaption><h2>Tone mix by area</h2><p>Share of negative, neutral and positive posts</p></figcaption><div id="c-mix" class="chart"></div></figure>
+    <figure class="card wide"><figcaption><h2>Activity over time</h2><p id="c-time-sub">Posts and replies</p></figcaption><div id="c-time" class="chart"></div></figure>
+    <figure class="card"><figcaption><h2>Recurring themes</h2><p>Words and phrases in the most posts</p></figcaption><div id="c-themes" class="chart"></div></figure>
+    <figure class="card"><figcaption><h2>Where feedback lives</h2><p>Posts per project and area</p></figcaption><div id="c-heat" class="chart"></div></figure>
+    <figure class="card"><figcaption><h2>Status of posts</h2><p>From the forum tags</p></figcaption><div id="c-status" class="chart"></div></figure>
+    <figure class="card"><figcaption><h2>Most active people</h2><p>Posts and replies per person</p></figcaption><div id="c-people" class="chart"></div></figure>
+  </section>
+
+  <section class="card"><h2>Open bugs</h2><div id="t-bugs"></div></section>
+  <section class="card"><h2>Asked or reported more than once</h2><div id="t-repeat"></div></section>
+  <section class="grid two">
+    <section class="card"><h2>Most discussed</h2><div id="t-discussed"></div></section>
+    <section class="card"><h2>Most negative</h2><div id="t-negative"></div></section>
+  </section>
+  <section class="card"><div class="row"><h2>Server map</h2><p class="muted">What each channel is for and the projects it is about</p></div><div id="map"></div></section>
+  <section class="card"><div class="row"><h2>All posts</h2><button id="csv" type="button" class="ghost">Download CSV</button></div><div id="t-all"></div></section>
+
+  <footer class="muted">Tone is a word-list hint (English, Portuguese, some Spanish and German): read the posts before drawing conclusions. People are shown as member-1, member-2\u2026 unless the report was made with their names.</footer>
+</div>
+<div id="tip" role="tooltip" hidden></div>
+<script type="application/json" id="data">${json3(data3)}</script>
+<script>${JS}</script>
+</body>
+</html>`;
+}
+var CSS = `
+.viz-root{color-scheme:light;--page:#f9f9f7;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;--grid:#e1e0d9;--axis:#c3c2b7;--ring:rgba(11,11,11,.10);
+--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--s6:#008300;--other:#a8a7a0;
+--neg:#e34948;--mid:#d9d8d2;--pos:#2a78d6;--q1:#cde2fb;--q2:#86b6ef;--q3:#3987e5;--q4:#1c5cab;--q5:#0d366b;--critical:#d03b3b;--good:#0ca30c}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .viz-root{color-scheme:dark;--page:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--grid:#2c2c2a;--axis:#383835;--ring:rgba(255,255,255,.10);
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#0ca30c;--other:#6e6d68;--neg:#e66767;--mid:#383835;--pos:#3987e5;--q1:#104281;--q2:#1c5cab;--q3:#2a78d6;--q4:#6da7ec;--q5:#b7d3f6}}
+:root[data-theme="dark"] .viz-root{color-scheme:dark;--page:#0d0d0d;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--grid:#2c2c2a;--axis:#383835;--ring:rgba(255,255,255,.10);
+--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--s6:#0ca30c;--other:#6e6d68;--neg:#e66767;--mid:#383835;--pos:#3987e5;--q1:#104281;--q2:#1c5cab;--q3:#2a78d6;--q4:#6da7ec;--q5:#b7d3f6}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#f9f9f7}
+:root[data-theme="dark"] body{background:#0d0d0d}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background:#0d0d0d}}
+.viz-root{background:var(--page);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;padding:24px 16px 48px;max-width:1240px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px}
+h2{font-size:15px;margin:0}
+.sub,.muted,figcaption p{color:var(--ink2);margin:2px 0 0;font-size:13px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.ghost{background:transparent;border:1px solid var(--ring);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer}
+.ghost:hover{background:var(--ring)}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:16px;position:sticky;top:0;z-index:5;background:var(--page);padding:8px 0}
+.filters label{display:flex;flex-direction:column;font-size:12px;color:var(--ink2);gap:4px}
+.filters .grow{flex:1;min-width:180px}
+select,input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--ring);border-radius:8px;padding:6px 8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:12px 14px}
+.tile .v{font-size:26px;font-weight:600;margin-top:2px}
+.tile .k{color:var(--ink2);font-size:12px}
+.tile .n{color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:14px 16px;margin:0 0 12px;min-width:0}
+.grid .card{margin:0}
+.wide{grid-column:1/-1}
+figure{margin:0}
+.chart{margin-top:10px;width:100%;overflow:hidden}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--ink2);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.legend i.line{height:2px;width:14px;border-radius:1px}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
+th{color:var(--ink2);font-weight:600;font-size:12px;cursor:pointer;user-select:none;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td a{color:var(--s1)}
+.tbl{overflow-x:auto}
+.chip{display:inline-block;border:1px solid var(--ring);border-radius:999px;padding:0 7px;font-size:11px;color:var(--ink2);margin:1px 3px 1px 0;white-space:nowrap}
+.tone{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tone::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--mid);vertical-align:0}
+.tone.neg::before{background:var(--neg)}.tone.pos::before{background:var(--pos)}
+.empty{color:var(--muted);padding:12px 0}
+.map{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.area{border:1px solid var(--ring);border-radius:10px;padding:10px}
+.area h3{font-size:13px;margin:0 0 6px}
+.area h3 span{text-transform:capitalize}
+.area h3 small{color:var(--muted);font-weight:400}
+.area li{list-style:none;margin:3px 0;font-size:12.5px}
+.area ul{margin:0;padding:0}
+.area .fb{color:var(--s1);font-size:11px}
+#tip{position:fixed;pointer-events:none;z-index:20;background:var(--surface,#fff);color:var(--ink,#0b0b0b);border:1px solid rgba(11,11,11,.12);border-radius:8px;padding:8px 10px;font:12px/1.4 system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.12);max-width:280px}
+#tip b{font-size:14px}
+#tip .key{display:inline-block;width:12px;height:2px;margin-right:6px;vertical-align:3px}
+.hit{cursor:default}
+.hit:hover,.hit:focus{opacity:.82;outline:none}
+footer{margin-top:16px;font-size:12px}
+@media (max-width:760px){.grid,.grid.two{grid-template-columns:1fr}.tile .v{font-size:22px}}
+`;
+var JS = String.raw`
+(() => {
+const D = JSON.parse(document.getElementById("data").textContent);
+const $ = (id) => document.getElementById(id);
+const AREAS = ["bugs", "suggestions", "reviews", "support", "tickets"];
+const SLOTS = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
+const css = (v) => getComputedStyle(document.querySelector(".viz-root")).getPropertyValue(v).trim();
+const areaList = [...new Set([...AREAS.filter((a) => D.items.some((i) => i.a === a)), ...D.items.map((i) => i.a)])];
+const areaColor = (a) => { const i = areaList.indexOf(a); return i >= 0 && i < SLOTS.length ? "var(" + SLOTS[i] + ")" : "var(--other)"; };
+const projects = [...new Set(D.items.flatMap((i) => i.p.length ? i.p : ["(no project)"]))].sort((a, b) => a === "(no project)" ? 1 : b === "(no project)" ? -1 : a.localeCompare(b));
+const projOf = (i) => (i.p.length ? i.p : ["(no project)"]);
+const isPost = (i) => i.k !== "reply";
+const closed = (i) => i.s.some((s) => /solved|resolved|fixed|closed|done|implemented|rejected|denied|duplicate|wontfix|resolvido|corrigido|fechado|rejeitado/i.test(s));
+const fmtTone = (n) => (n > 0 ? "+" : "") + n.toFixed(2);
+const toneClass = (n) => (n > 0.05 ? "pos" : n < -0.05 ? "neg" : "");
+const label = (i) => i.t || (i.x || "").replace(/\s+/g, " ").slice(0, 90);
+const avg = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
+const STOP = new Set(D.stop);
+
+// ---------------------------------------------------------------- filters
+const opt = (sel, values, all) => { sel.innerHTML = ""; [["all", all], ...values.map((v) => [v, v])].forEach(([v, t]) => { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.appendChild(o); }); };
+opt($("f-project"), projects, "All projects");
+opt($("f-area"), areaList, "All areas");
+const state = { range: "all", project: "all", area: "all", q: "" };
+for (const [id, key] of [["f-range", "range"], ["f-project", "project"], ["f-area", "area"]]) $(id).addEventListener("change", (e) => { state[key] = e.target.value; render(); });
+$("f-search").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); render(); });
+const latest = Math.max(...D.items.map((i) => Date.parse(i.d) || 0));
+function filtered() {
+  return D.items.filter((i) => {
+    if (state.range !== "all" && (Date.parse(i.d) || 0) < latest - Number(state.range) * 864e5) return false;
+    if (state.project !== "all" && !projOf(i).includes(state.project)) return false;
+    if (state.area !== "all" && i.a !== state.area) return false;
+    if (state.q && !((i.t || "") + " " + i.x).toLowerCase().includes(state.q)) return false;
+    return true;
+  });
+}
+
+// ---------------------------------------------------------------- tooltip
+const tip = $("tip");
+function showTip(e, rows) {
+  tip.replaceChildren();
+  rows.forEach((r, n) => {
+    const line = document.createElement("div");
+    if (r.color) { const k = document.createElement("span"); k.className = "key"; k.style.background = r.color; line.appendChild(k); }
+    if (r.value !== undefined) { const b = document.createElement("b"); b.textContent = r.value; line.appendChild(b); line.appendChild(document.createTextNode(" ")); }
+    const t = document.createElement("span"); t.textContent = r.text; if (n === 0 && r.value === undefined) t.style.fontWeight = "600"; line.appendChild(t);
+    tip.appendChild(line);
+  });
+  tip.hidden = false;
+  const box = (e.target.getBoundingClientRect && e.clientX === undefined) ? e.target.getBoundingClientRect() : null;
+  const x = box ? box.right : e.clientX, y = box ? box.top : e.clientY;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(innerWidth - w - 8, x + 12) + "px";
+  tip.style.top = Math.max(8, Math.min(innerHeight - h - 8, y + 12)) + "px";
+}
+const hideTip = () => { tip.hidden = true; };
+function bindTips(root) {
+  root.querySelectorAll("[data-tip]").forEach((el) => {
+    const rows = JSON.parse(el.dataset.tip);
+    el.addEventListener("pointermove", (e) => showTip(e, rows));
+    el.addEventListener("focus", (e) => showTip(e, rows));
+    el.addEventListener("pointerleave", hideTip);
+    el.addEventListener("blur", hideTip);
+  });
+}
+const tipAttr = (rows) => " tabindex=\"0\" class=\"hit\" data-tip='" + JSON.stringify(rows).replace(/&/g, "&amp;").replace(/'/g, "&#39;") + "'";
+const escx = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+// ---------------------------------------------------------------- chart helpers
+let W = 640;
+const fit = (id) => { W = Math.max(300, Math.round($(id).clientWidth) || 640); return W; };
+function legend(entries, line) {
+  return "<div class=\"legend\">" + entries.map(([name, color]) => "<span><i class=\"" + (line ? "line" : "") + "\" style=\"background:" + color + "\"></i>" + escx(name) + "</span>").join("") + "</div>";
+}
+// Counts: whole-number steps (1, 2, 5, 10, 20, 25, 50…) and a top that is a multiple of the step.
+const stepOf = (m) => { const raw = Math.max(1, m) / 4, p = Math.pow(10, Math.floor(Math.log10(raw))); return [1, 2, 2.5, 5, 10].map((x) => x * p).find((x) => x >= raw && (x >= 1 ? Number.isInteger(x) : true)) || 1; };
+const niceMax = (m) => { const st = Math.max(1, stepOf(m)); return Math.ceil(Math.max(1, m) / st) * st; };
+const ticks = (max) => { const st = max === 100 ? 25 : Math.max(1, stepOf(max)); const out = []; for (let v = 0; v <= max + 1e-9; v += st) out.push(Math.round(v * 100) / 100); return out; };
+function empty() { return "<p class=\"empty\">Nothing to show for these filters.</p>"; }
+
+// Horizontal bars, one row per category; each row is one or more stacked segments.
+function hbars(id, rows, { stacked = true, max, labelW = 150, valueLabel = true, fmt = (v) => v } = {}) {
+  if (!rows.length) return empty(id);
+  fit(id);
+  const rowH = 26, gap = 10, top = 4, plotW = W - labelW - 40;
+  const total = (r) => r.segs.reduce((s, x) => s + x.v, 0);
+  const M = max ?? niceMax(Math.max(...rows.map(total)));
+  const h = top + rows.length * (rowH + gap) + 22;
+  let s = "<svg viewBox=\"0 0 " + W + " " + h + "\" role=\"img\" aria-label=\"" + escx($(id).closest("figure")?.querySelector("h2")?.textContent || "chart") + "\">";
+  for (const t of ticks(M)) { const x = labelW + t / M * plotW; s += "<line x1=\"" + x + "\" x2=\"" + x + "\" y1=\"0\" y2=\"" + (h - 20) + "\" stroke=\"var(--grid)\"/><text x=\"" + x + "\" y=\"" + (h - 6) + "\" fill=\"var(--muted)\" font-size=\"11\" text-anchor=\"middle\">" + fmt(t) + "</text>"; }
+  rows.forEach((r, i) => {
+    const y = top + i * (rowH + gap);
+    s += "<text x=\"" + (labelW - 8) + "\" y=\"" + (y + rowH / 2 + 4) + "\" fill=\"var(--ink2)\" font-size=\"12\" text-anchor=\"end\">" + escx(r.name.length > 22 ? r.name.slice(0, 21) + "…" : r.name) + "</text>";
+    let x = labelW;
+    const segs = r.segs.filter((g) => g.v > 0);
+    segs.forEach((g, j) => {
+      const w = Math.max(1, g.v / M * plotW - (j < segs.length - 1 ? 2 : 0));
+      const last = j === segs.length - 1;
+      const path = last && w > 4 ? "M" + x + "," + y + "h" + (w - 4) + "a4,4 0 0 1 4,4v" + (rowH - 8) + "a4,4 0 0 1 -4,4h" + (-(w - 4)) + "z" : "M" + x + "," + y + "h" + w + "v" + rowH + "h" + (-w) + "z";
+      s += "<path d=\"" + path + "\" fill=\"" + g.c + "\"" + tipAttr([{ text: r.name }, { value: fmt(g.v), text: g.n, color: g.c }]) + "/>";
+      x += w + 2;
+    });
+    if (valueLabel) s += "<text x=\"" + (x + 4) + "\" y=\"" + (y + rowH / 2 + 4) + "\" fill=\"var(--ink)\" font-size=\"12\" font-variant-numeric=\"tabular-nums\">" + fmt(total(r)) + "</text>";
+  });
+  return s + "</svg>";
+}
+
+// Diverging bars around zero (tone).
+function divbars(id, rows, labelW = 150) {
+  if (!rows.length) return empty(id);
+  fit(id);
+  const rowH = 24, gap = 10, plotW = W - labelW - 50, mid = labelW + plotW / 2;
+  const h = rows.length * (rowH + gap) + 24;
+  let s = "<svg viewBox=\"0 0 " + W + " " + h + "\" role=\"img\" aria-label=\"Tone by project\">";
+  for (const t of [-1, -0.5, 0, 0.5, 1]) { const x = mid + t * plotW / 2; s += "<line x1=\"" + x + "\" x2=\"" + x + "\" y1=\"0\" y2=\"" + (h - 20) + "\" stroke=\"" + (t === 0 ? "var(--axis)" : "var(--grid)") + "\"/><text x=\"" + x + "\" y=\"" + (h - 6) + "\" fill=\"var(--muted)\" font-size=\"11\" text-anchor=\"middle\">" + (t > 0 ? "+" : "") + t + "</text>"; }
+  rows.forEach((r, i) => {
+    const y = i * (rowH + gap), w = Math.abs(r.v) * plotW / 2, x = r.v >= 0 ? mid : mid - w;
+    const c = r.v >= 0 ? "var(--pos)" : "var(--neg)";
+    s += "<text x=\"" + (labelW - 8) + "\" y=\"" + (y + rowH / 2 + 4) + "\" fill=\"var(--ink2)\" font-size=\"12\" text-anchor=\"end\">" + escx(r.name) + "</text>";
+    s += "<rect x=\"" + x + "\" y=\"" + y + "\" width=\"" + Math.max(1.5, w) + "\" height=\"" + rowH + "\" rx=\"4\" fill=\"" + c + "\"" + tipAttr([{ text: r.name }, { value: fmtTone(r.v), text: "average tone", color: c }, { text: r.neg + " negative · " + r.neu + " neutral · " + r.pos + " positive" }]) + "/>";
+    s += "<text x=\"" + (r.v >= 0 ? x + w + 6 : x - 6) + "\" y=\"" + (y + rowH / 2 + 4) + "\" fill=\"var(--ink)\" font-size=\"12\" text-anchor=\"" + (r.v >= 0 ? "start" : "end") + "\">" + fmtTone(r.v) + "</text>";
+  });
+  return s + "</svg>";
+}
+
+// Stacked columns over time; each column is one hover target listing every series.
+function columns(id, buckets, series) {
+  if (!buckets.length) { $(id).innerHTML = empty(); return; }
+  const Wc = fit(id), L = 36, R = 8, T = 8, B = 26, H = 220, plotW = Wc - L - R, plotH = H - T - B;
+  const totals = buckets.map((_, i) => series.reduce((s, x) => s + x.vals[i], 0));
+  const M = niceMax(Math.max(1, ...totals));
+  const Y = (v) => T + plotH - v / M * plotH;
+  const slot = plotW / buckets.length, bw = Math.max(2, Math.min(28, slot - 2));
+  let s = "<svg viewBox=\"0 0 " + Wc + " " + H + "\" role=\"img\" aria-label=\"Activity over time\">";
+  for (const t of ticks(M)) s += "<line x1=\"" + L + "\" x2=\"" + (Wc - R) + "\" y1=\"" + Y(t) + "\" y2=\"" + Y(t) + "\" stroke=\"var(--grid)\"/><text x=\"" + (L - 6) + "\" y=\"" + (Y(t) + 4) + "\" fill=\"var(--muted)\" font-size=\"11\" text-anchor=\"end\">" + t + "</text>";
+  const every = Math.ceil(buckets.length / Math.max(2, Math.floor(plotW / 70)));
+  buckets.forEach((b, i) => {
+    const cx = L + slot * i + slot / 2;
+    if (i % every === 0) s += "<text x=\"" + cx + "\" y=\"" + (H - 6) + "\" fill=\"var(--muted)\" font-size=\"11\" text-anchor=\"middle\">" + escx(b.label) + "</text>";
+    let y = T + plotH;
+    const segs = series.map((x) => ({ x, v: x.vals[i] })).filter((g) => g.v > 0);
+    segs.forEach((g, j) => {
+      const h = g.v / M * plotH - (j < segs.length - 1 ? 2 : 0);
+      const top = j === segs.length - 1;
+      const x0 = cx - bw / 2;
+      const d = top && h > 4 ? "M" + x0 + "," + y + "v" + (-(h - 4)) + "a4,4 0 0 1 4,-4h" + (bw - 8) + "a4,4 0 0 1 4,4v" + (h - 4) + "z" : "M" + x0 + "," + y + "v" + (-h) + "h" + bw + "v" + h + "z";
+      s += "<path d=\"" + d + "\" fill=\"" + g.x.c + "\" pointer-events=\"none\"/>";
+      y -= h + 2;
+    });
+    s += "<rect x=\"" + (L + slot * i) + "\" y=\"" + T + "\" width=\"" + slot + "\" height=\"" + plotH + "\" fill=\"transparent\"" + tipAttr([{ text: b.full }, ...series.map((x) => ({ value: x.vals[i], text: x.name, color: x.c })), { text: totals[i] + " in total" }]) + "/>";
+  });
+  s += "</svg>" + legend(series.map((x) => [x.name, x.c]));
+  $(id).innerHTML = s;
+}
+
+// Heatmap: rows × columns of counts on the sequential ramp.
+function heat(id, rows, cols, val) {
+  if (!rows.length || !cols.length) return empty(id);
+  fit(id);
+  const labelW = 140, top = 26, cw = Math.min(90, (W - labelW) / cols.length), ch = 30;
+  const M = Math.max(1, ...rows.flatMap((r) => cols.map((c) => val(r, c))));
+  const step = (v) => (v === 0 ? "var(--grid)" : "var(--q" + Math.min(5, 1 + Math.floor(v / M * 4.999)) + ")");
+  const h = top + rows.length * ch + 4;
+  let s = "<svg viewBox=\"0 0 " + (labelW + cols.length * cw) + " " + h + "\" role=\"img\" aria-label=\"Posts per project and area\">";
+  cols.forEach((c, j) => { s += "<text x=\"" + (labelW + j * cw + cw / 2) + "\" y=\"16\" fill=\"var(--ink2)\" font-size=\"11\" text-anchor=\"middle\">" + escx(c) + "</text>"; });
+  rows.forEach((r, i) => {
+    const y = top + i * ch;
+    s += "<text x=\"" + (labelW - 8) + "\" y=\"" + (y + ch / 2 + 4) + "\" fill=\"var(--ink2)\" font-size=\"12\" text-anchor=\"end\">" + escx(r.length > 20 ? r.slice(0, 19) + "…" : r) + "</text>";
+    cols.forEach((c, j) => {
+      const v = val(r, c), dark = v / M > 0.55;
+      s += "<rect x=\"" + (labelW + j * cw + 1) + "\" y=\"" + (y + 1) + "\" width=\"" + (cw - 2) + "\" height=\"" + (ch - 2) + "\" rx=\"4\" fill=\"" + step(v) + "\"" + tipAttr([{ text: r + " · " + c }, { value: v, text: v === 1 ? "post" : "posts" }]) + "/>";
+      if (v) s += "<text x=\"" + (labelW + j * cw + cw / 2) + "\" y=\"" + (y + ch / 2 + 4) + "\" fill=\"" + (dark ? "#ffffff" : "var(--ink)") + "\" font-size=\"12\" text-anchor=\"middle\" pointer-events=\"none\">" + v + "</text>";
+    });
+  });
+  return s + "</svg>";
+}
+
+// ---------------------------------------------------------------- tables
+function table(id, cols, rows, { sortable = false, limit = 0 } = {}) {
+  if (!rows.length) { $(id).innerHTML = empty(); return; }
+  const el = $(id);
+  let sortCol = -1, dir = 1;
+  const draw = () => {
+    let rs = rows.slice();
+    if (sortCol >= 0) rs.sort((a, b) => { const x = cols[sortCol].sort(a), y = cols[sortCol].sort(b); return (x > y ? 1 : x < y ? -1 : 0) * dir; });
+    if (limit) rs = rs.slice(0, limit);
+    const t = document.createElement("table");
+    const hr = t.createTHead().insertRow();
+    cols.forEach((c, n) => { const th = document.createElement("th"); th.textContent = c.h + (sortCol === n ? (dir > 0 ? " ↑" : " ↓") : ""); if (c.num) th.className = "num"; if (sortable && c.sort) th.addEventListener("click", () => { dir = sortCol === n ? -dir : (c.num ? -1 : 1); sortCol = n; draw(); }); hr.appendChild(th); });
+    const tb = t.createTBody();
+    for (const r of rs) { const tr = tb.insertRow(); cols.forEach((c) => { const td = tr.insertCell(); if (c.num) td.className = "num"; c.cell(td, r); }); }
+    const wrap = document.createElement("div"); wrap.className = "tbl"; wrap.appendChild(t);
+    el.replaceChildren(wrap);
+  };
+  draw();
+}
+const textCell = (f) => (td, r) => { const v = f(r); td.textContent = v === null || v === undefined ? "–" : v; };
+const linkCell = (td, r) => { if (r.l) { const a = document.createElement("a"); a.href = r.l; a.target = "_blank"; a.rel = "noopener"; a.textContent = label(r); td.appendChild(a); } else td.textContent = label(r); };
+const chipsCell = (f) => (td, r) => { for (const v of f(r)) { const s = document.createElement("span"); s.className = "chip"; s.textContent = v; td.appendChild(s); } };
+const toneCell = (td, r) => { const s = document.createElement("span"); s.className = "tone " + toneClass(r.tone); s.textContent = fmtTone(r.tone); td.appendChild(s); };
+
+// ---------------------------------------------------------------- render
+function words(s) { return s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^\p{L}\p{N}\s'-]/gu, " ").split(/\s+/).map((w) => w.replace(/^[-']+|[-']+$/g, "")).filter((w) => w.length > 2 && !STOP.has(w) && !/^\d+$/.test(w) && !["game", "pack", "modpack", "mod"].includes(w)); }
+function render() {
+  const items = filtered(), posts = items.filter(isPost);
+  const scope = [state.project !== "all" && state.project, state.area !== "all" && state.area, state.range !== "all" && "last " + state.range + " days", state.q && "“" + state.q + "”"].filter(Boolean);
+  $("scope").textContent = scope.length ? "showing " + scope.join(" · ") : "showing everything";
+
+  // Tiles
+  const people = new Set(items.map((i) => i.au)).size;
+  const bugs = posts.filter((i) => i.a === "bugs"), openBugs = bugs.filter((i) => !closed(i));
+  const threads = posts.filter((i) => i.rp !== null);
+  const answered = threads.filter((i) => i.rp > 0).length;
+  const tone = avg(items.map((i) => i.tone));
+  const tiles = [
+    ["Posts", posts.length, items.length - posts.length + " replies"],
+    ["People", people, "who wrote"],
+    ["Open bugs", openBugs.length, bugs.length ? Math.round((bugs.length - openBugs.length) / bugs.length * 100) + "% of bugs closed" : "no bugs"],
+    ["Average tone", fmtTone(tone), tone > 0.05 ? "leaning positive" : tone < -0.05 ? "leaning negative" : "about neutral"],
+    ["Answered", threads.length ? Math.round(answered / threads.length * 100) + "%" : "–", answered + " of " + threads.length + " posts have replies"],
+    ["Negative posts", posts.filter((i) => i.tone < 0).length, posts.length ? Math.round(posts.filter((i) => i.tone < 0).length / posts.length * 100) + "% of posts" : ""],
+  ];
+  $("tiles").innerHTML = tiles.map(([k, v, n]) => "<div class=\"tile\"><div class=\"k\">" + escx(k) + "</div><div class=\"v\">" + escx(v) + "</div><div class=\"n\">" + escx(n) + "</div></div>").join("");
+
+  const shownProjects = projects.filter((p) => posts.some((i) => projOf(i).includes(p)));
+  const shownAreas = areaList.filter((a) => posts.some((i) => i.a === a));
+
+  // Projects × areas
+  const projRows = shownProjects.map((p) => ({ name: p, segs: shownAreas.map((a) => ({ n: a, v: posts.filter((i) => i.a === a && projOf(i).includes(p)).length, c: areaColor(a) })) }));
+  $("c-projects").innerHTML = (hbars("c-projects", projRows) || "") + (projRows.length ? legend(shownAreas.map((a) => [a, areaColor(a)])) : "");
+
+  // Tone by project
+  const toneRows = shownProjects.map((p) => { const mine = items.filter((i) => projOf(i).includes(p)); return { name: p, v: avg(mine.map((i) => i.tone)), neg: mine.filter((i) => i.tone < 0).length, neu: mine.filter((i) => i.tone === 0).length, pos: mine.filter((i) => i.tone > 0).length }; });
+  $("c-tone").innerHTML = divbars("c-tone", toneRows) || "";
+
+  // Tone mix by area (100%)
+  const mixRows = shownAreas.map((a) => { const mine = posts.filter((i) => i.a === a), n = mine.length || 1; return { name: a, segs: [
+    { n: "negative", v: Math.round(mine.filter((i) => i.tone < 0).length / n * 100), c: "var(--neg)" },
+    { n: "neutral", v: Math.round(mine.filter((i) => i.tone === 0).length / n * 100), c: "var(--mid)" },
+    { n: "positive", v: Math.round(mine.filter((i) => i.tone > 0).length / n * 100), c: "var(--pos)" }] }; });
+  $("c-mix").innerHTML = (hbars("c-mix", mixRows, { max: 100, valueLabel: false, fmt: (v) => v + "%", labelW: 110 }) || "") + (mixRows.length ? legend([["negative", "var(--neg)"], ["neutral", "var(--mid)"], ["positive", "var(--pos)"]]) : "");
+
+  // Over time
+  const dated = items.filter((i) => Date.parse(i.d));
+  if (dated.length) {
+    const t0 = Math.min(...dated.map((i) => Date.parse(i.d))), t1 = Math.max(...dated.map((i) => Date.parse(i.d)));
+    const span = t1 - t0;
+    const unit = span <= 2 * 864e5 ? 36e5 : span <= 120 * 864e5 ? 864e5 : 7 * 864e5;
+    const start = Math.floor(t0 / unit) * unit, n = Math.floor((t1 - start) / unit) + 1;
+    const fmtB = (t) => { const d = new Date(t); return unit === 36e5 ? d.toISOString().slice(11, 13) + "h" : d.toISOString().slice(5, 10); };
+    const buckets = Array.from({ length: n }, (_, i) => ({ label: fmtB(start + i * unit), full: unit === 36e5 ? new Date(start + i * unit).toISOString().slice(0, 13).replace("T", " ") + ":00" : (unit === 7 * 864e5 ? "Week of " : "") + new Date(start + i * unit).toISOString().slice(0, 10) }));
+    const top = shownProjects.filter((p) => p !== "(no project)").slice(0, 3);
+    const series = top.map((p, j) => ({ name: p, c: "var(" + SLOTS[j] + ")", vals: buckets.map((_, b) => dated.filter((i) => projOf(i).includes(p) && Math.floor((Date.parse(i.d) - start) / unit) === b).length) }));
+    const rest = dated.filter((i) => !projOf(i).some((p) => top.includes(p)));
+    if (rest.length) series.push({ name: shownProjects.length > top.length + 1 ? "Other" : "(no project)", c: "var(--other)", vals: buckets.map((_, b) => rest.filter((i) => Math.floor((Date.parse(i.d) - start) / unit) === b).length) });
+    $("c-time-sub").textContent = "Posts and replies per " + (unit === 36e5 ? "hour" : unit === 864e5 ? "day" : "week");
+    columns("c-time", buckets, series);
+  } else $("c-time").innerHTML = empty();
+
+  // Themes (counted once per post or reply)
+  const counts = new Map(), pairs = new Map();
+  const pw = new Set(projects.flatMap((p) => words(p)));
+  for (const i of items) {
+    const ws = words((i.k === "reply" ? "" : (i.t || "")) + " " + i.x).filter((w) => !pw.has(w));
+    for (const w of new Set(ws)) counts.set(w, (counts.get(w) || 0) + 1);
+    for (const p of new Set(ws.slice(1).map((w, j) => ws[j] + " " + w))) pairs.set(p, (pairs.get(p) || 0) + 1);
+  }
+  const themeList = [...[...pairs].filter(([, n]) => n >= 2), ...[...counts].filter(([, n]) => n >= 2)].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length);
+  const seen = new Set(), themes = [];
+  for (const [t, n] of themeList) { if (t.split(" ").every((w) => seen.has(w)) && !t.includes(" ")) continue; themes.push([t, n]); t.split(" ").forEach((w) => seen.add(w)); if (themes.length >= 10) break; }
+  $("c-themes").innerHTML = hbars("c-themes", themes.map(([t, n]) => ({ name: t, segs: [{ n: "posts mentioning it", v: n, c: "var(--s1)" }] })), { labelW: 130 }) || "";
+
+  // Heatmap
+  $("c-heat").innerHTML = heat("c-heat", shownProjects, shownAreas, (p, a) => posts.filter((i) => i.a === a && projOf(i).includes(p)).length) || "";
+
+  // Status
+  const st = new Map();
+  for (const i of posts) for (const s of i.s.length ? i.s : ["no status"]) st.set(s, (st.get(s) || 0) + 1);
+  $("c-status").innerHTML = hbars("c-status", [...st].sort((a, b) => b[1] - a[1]).map(([s, n]) => ({ name: s, segs: [{ n: "posts", v: n, c: s === "no status" ? "var(--other)" : "var(--s1)" }] })), { labelW: 110 }) || "";
+
+  // People
+  const pc = new Map();
+  for (const i of items) { const c = pc.get(i.au) || { p: 0, r: 0 }; i.k === "reply" ? c.r++ : c.p++; pc.set(i.au, c); }
+  $("c-people").innerHTML = (hbars("c-people", [...pc].sort((a, b) => (b[1].p + b[1].r) - (a[1].p + a[1].r)).slice(0, 8).map(([n, c]) => ({ name: n, segs: [{ n: "posts", v: c.p, c: "var(--s1)" }, { n: "replies", v: c.r, c: "var(--s2)" }] })), { labelW: 110 }) || "") + (pc.size ? legend([["posts", "var(--s1)"], ["replies", "var(--s2)"]]) : "");
+
+  // Tables
+  table("t-bugs", [{ h: "Bug", cell: linkCell }, { h: "Project", cell: chipsCell((r) => projOf(r)) }, { h: "Status", cell: chipsCell((r) => r.s) }, { h: "Replies", num: true, cell: textCell((r) => r.rp) }, { h: "Reactions", num: true, cell: textCell((r) => r.r) }, { h: "Tone", cell: toneCell }],
+    openBugs.sort((a, b) => (b.r + b.rp * 2) - (a.r + a.rp * 2)));
+  const visible = new Set(posts.map(label));
+  const rep = D.repeated.filter((g) => g.posts.filter((p) => visible.has(p)).length > 1);
+  table("t-repeat", [{ h: "About", cell: textCell((g) => g.about) }, { h: "Area", cell: textCell((g) => g.area || "") }, { h: "Posts", num: true, cell: textCell((g) => g.posts.length) }, { h: "Titles", cell: (td, g) => { td.textContent = g.posts.join(" · "); } }], rep);
+  table("t-discussed", [{ h: "Post", cell: linkCell }, { h: "Area", cell: textCell((r) => r.a) }, { h: "Replies", num: true, cell: textCell((r) => r.rp) }, { h: "Reactions", num: true, cell: textCell((r) => r.r) }],
+    posts.slice().sort((a, b) => (b.r + b.rp * 2) - (a.r + a.rp * 2)).filter((i) => i.r + i.rp > 0).slice(0, 8));
+  table("t-negative", [{ h: "Post", cell: linkCell }, { h: "Area", cell: textCell((r) => r.a) }, { h: "Tone", cell: toneCell }],
+    posts.filter((i) => i.tone < 0).sort((a, b) => a.tone - b.tone || (b.r + b.rp) - (a.r + a.rp)).slice(0, 8));
+  table("t-all", [
+    { h: "Post", cell: (td, r) => { linkCell(td, r); if (r.t && r.x) { const p = document.createElement("div"); p.className = "muted"; p.textContent = r.x.slice(0, 160) + (r.x.length > 160 ? "…" : ""); td.appendChild(p); } }, sort: (r) => label(r).toLowerCase() },
+    { h: "Area", cell: textCell((r) => r.a), sort: (r) => r.a },
+    { h: "Project", cell: chipsCell((r) => projOf(r)), sort: (r) => projOf(r)[0] },
+    { h: "Status", cell: chipsCell((r) => r.s), sort: (r) => r.s.join() },
+    { h: "By", cell: textCell((r) => r.au), sort: (r) => r.au || "" },
+    { h: "Replies", num: true, cell: textCell((r) => r.rp), sort: (r) => r.rp },
+    { h: "Reactions", num: true, cell: textCell((r) => r.r), sort: (r) => r.r },
+    { h: "Tone", cell: toneCell, sort: (r) => r.tone },
+    { h: "Date", cell: textCell((r) => (r.d || "").slice(0, 10)), sort: (r) => r.d || "" },
+  ], posts, { sortable: true });
+
+  bindTips(document.querySelector(".viz-root"));
+}
+
+// ---------------------------------------------------------------- map (not filtered: the structure of the server)
+if (D.map) {
+  const by = {};
+  for (const c of D.map.channels) (by[c.a] ||= []).push(c);
+  const order = ["bugs", "suggestions", "reviews", "support", "tickets", "forum", "announcements", "showcase", "chat", "info", "staff", "other"];
+  const box = document.createElement("div"); box.className = "map";
+  for (const a of order.filter((x) => by[x]).concat(Object.keys(by).filter((x) => !order.includes(x)))) {
+    const card = document.createElement("div"); card.className = "area";
+    const h = document.createElement("h3"); const hn = document.createElement("span"); hn.textContent = a + " "; h.appendChild(hn); const sm = document.createElement("small"); sm.textContent = by[a].length + (by[a].length === 1 ? " channel" : " channels") + (by[a].some((c) => c.f) ? " · read for feedback" : ""); h.appendChild(sm); card.appendChild(h);
+    const ul = document.createElement("ul");
+    for (const c of by[a]) { const li = document.createElement("li"); li.textContent = "#" + c.n + " "; for (const p of c.p) { const s = document.createElement("span"); s.className = "chip"; s.textContent = p; li.appendChild(s); } ul.appendChild(li); }
+    card.appendChild(ul); box.appendChild(card);
+  }
+  const head = document.createElement("p"); head.className = "muted";
+  head.textContent = D.map.projects.length ? "Projects found: " + D.map.projects.join(", ") : "No projects found.";
+  $("map").replaceChildren(head, box);
+} else $("map").innerHTML = "<p class=\"empty\">This report was made from a file, so there is no server map.</p>";
+
+// ---------------------------------------------------------------- CSV and theme
+$("csv").addEventListener("click", () => {
+  const rows = [["kind", "area", "channel", "title", "text", "projects", "status", "author", "replies", "reactions", "tone", "date", "link"]].concat(
+    filtered().map((i) => [i.k, i.a, i.c, i.t, i.x, i.p.join("; "), i.s.join("; "), i.au, i.rp, i.r, i.tone, i.d, i.l]));
+  const csv = rows.map((r) => r.map((v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? "\"" + s.replace(/"/g, "\"\"") + "\"" : s; }).join(",")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" })); a.download = "feedback.csv"; a.click();
+});
+$("theme").addEventListener("click", () => {
+  const root = document.documentElement, dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark ? "light" : "dark"; render();
+});
+render();
+let resizeT;
+addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(render, 150); });
+})();
+`;
+
 // src/tools/insights.js
 var INSIGHTS_DIR = join7(homedir7(), ".discord-mcp", "insights");
 var AREA_NAMES = [...Object.keys(AREAS), "forum", "other"];
@@ -47059,13 +47557,55 @@ async function collect(a) {
   for (const it of items) it.sentiment = sentiment(`${it.title || ""} ${it.text || ""}`);
   return { guild, map: map2, items: items.map((i) => defined(i)), skipped };
 }
-function save2(folder, base, data3, md) {
+var stamp = () => (/* @__PURE__ */ new Date()).toISOString().slice(0, 16).replace(/[:T]/g, "-");
+function openFile(path) {
+  if (process.env.DSM_NO_OPEN) return false;
+  try {
+    const [cmd, args] = process.platform === "win32" ? ["cmd", ["/c", "start", "", path]] : process.platform === "darwin" ? ["open", [path]] : ["xdg-open", [path]];
+    spawn(cmd, args, { detached: true, stdio: "ignore", windowsHide: true }).on("error", () => {
+    }).unref();
+    return true;
+  } catch {
+    return false;
+  }
+}
+var csvOf = (items) => [["kind", "area", "channel", "title", "text", "projects", "status", "tags", "author", "replies", "reactions", "tone", "date", "link"]].concat(items.map((i) => [
+  i.kind,
+  i.area,
+  i.channel,
+  i.title,
+  i.text,
+  (i.projects || []).join("; "),
+  [].concat(i.status || []).join("; "),
+  (i.tags || []).join("; "),
+  i.author,
+  i.replies,
+  i.reactions,
+  i.sentiment,
+  i.created,
+  i.link
+])).map((r) => r.map((v) => {
+  const t = String(v ?? "");
+  return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+}).join(",")).join("\n");
+function writeReport({ name, items, map: map2, title, open: open2, extra = {} }) {
+  const r = report(items, map2);
+  const folder = join7(INSIGHTS_DIR, `${safeName(name)}-${stamp()}`);
   mkdirSync7(folder, { recursive: true });
-  const json3 = join7(folder, `${base}.json`);
-  writeFileSync6(json3, JSON.stringify(data3, null, 2));
-  let mdFile;
-  if (md) writeFileSync6(mdFile = join7(folder, `${base}.md`), md);
-  return { json: json3, markdown: mdFile };
+  const heading = title || `Feedback report \xB7 ${name}`;
+  const files = {
+    html: join7(folder, "report.html"),
+    markdown: join7(folder, "report.md"),
+    csv: join7(folder, "feedback.csv"),
+    data: join7(folder, "data.json")
+  };
+  writeFileSync6(files.html, reportHtml({ title: heading, server: name, generated: (/* @__PURE__ */ new Date()).toISOString(), items, map: map2, repeated: r.repeated, stop: STOP }));
+  writeFileSync6(files.markdown, reportMarkdown(r, heading));
+  writeFileSync6(files.csv, "\uFEFF" + csvOf(items));
+  writeFileSync6(files.data, JSON.stringify({ server: name, collected: (/* @__PURE__ */ new Date()).toISOString(), ...extra, projects: map2?.projects || [], map: map2, items }, null, 2));
+  const opened = open2 !== false && openFile(files.html);
+  const { map: _m, ...summary2 } = r;
+  return { summary: summary2, files, opened };
 }
 var preview = (items, n) => items.slice(0, n).map((i) => defined({ ...i, text: i.text?.length > 400 ? i.text.slice(0, 400) + "\u2026" : i.text }));
 function register13(t) {
@@ -47104,40 +47644,42 @@ function register13(t) {
     include_replies: external_exports.boolean().default(true),
     include_closed_tickets: external_exports.boolean().default(true).describe("Also read the transcripts of tickets closed by this tool's ticket system"),
     include_bots: external_exports.boolean().default(false).describe("Also count messages from bots, e.g. a bot that relays reviews or form answers (the author named in its embed is used)"),
-    anonymize: external_exports.boolean().default(true).describe("Name people member-1, member-2\u2026 instead of by their username (default)")
+    anonymize: external_exports.boolean().default(true).describe("Name people member-1, member-2\u2026 instead of by their username (default)"),
+    title: external_exports.string().optional().describe("Title of the report"),
+    open_report: external_exports.boolean().default(true).describe("Open the report in the browser when it is ready")
   };
   tool(
     "collect_feedback",
-    "Collect the feedback of a server into one list: forum posts with their tags, status and replies, ticket conversations and messages from feedback channels, each with its area, project, tone and link. Saves the full list to a file and returns a preview; feedback_report summarises it.",
+    "Collect the feedback of a server: forum posts with their tags, status and replies, ticket conversations and messages from feedback channels, each with its area, project, tone and link. Always makes the full report (an interactive HTML page with charts and filters, plus Markdown, CSV and JSON) and opens it; returns a summary and a preview of the posts.",
     {
       ...collectShape,
       preview: external_exports.number().int().min(0).max(200).default(40).describe("How many items to return here (all of them go to the file)")
     },
     async (a) => {
       const { guild, map: map2, items, skipped } = await collect(a);
-      const base = `${safeName(guild.name)}-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 16).replace(/[:T]/g, "-")}`;
-      const files = save2(INSIGHTS_DIR, base, { server: guild.name, collected: (/* @__PURE__ */ new Date()).toISOString(), options: a, projects: map2.projects, map: map2, items });
-      const posts = items.filter((i) => i.kind !== "reply");
+      if (!items.length) throw new DiscordError("No feedback found with these options." + (skipped.length ? ` Skipped: ${skipped.join("; ")}` : ""));
+      const out2 = writeReport({ name: guild.name, items, map: map2, title: a.title, open: a.open_report, extra: { options: a } });
       return defined({
         server: guild.name,
-        posts: posts.length,
-        replies: items.length - posts.length,
-        by_area: posts.reduce((o, i) => ({ ...o, [i.area]: (o[i.area] || 0) + 1 }), {}),
-        file: files.json,
+        posts: out2.summary.totals.posts,
+        replies: out2.summary.totals.replies,
+        report: out2.files.html,
+        opened_in_browser: out2.opened,
+        files: out2.files,
+        ...out2.summary,
         items: preview(items, a.preview),
         skipped: skipped.length ? skipped : void 0,
-        next: "Run feedback_report with this file for the summary, or read the items to look closer."
+        note: "Show the user the report path and the main findings. The tone score is a word-list hint: read the most negative and most discussed posts before drawing conclusions."
       });
     },
     READ
   );
   tool(
     "feedback_report",
-    "Summarise feedback: per project and area, tone, open bugs, most discussed and most negative posts, requests made more than once, recurring themes and a map. Reads a live server (same options as collect_feedback) or a file: a collect_feedback result, a backup_messages export, a channel export in JSON, a CSV with title/text columns, or plain text with one post per paragraph. Saves a Markdown report.",
+    "Make the feedback report: an interactive HTML page with charts (feedback by project and area, tone, tone mix, activity over time, recurring themes, a project \xD7 area heatmap, status, most active people), filters (period, project, area, search), tables (open bugs, repeated requests, most discussed, most negative, every post with CSV download) and the server map, plus Markdown, CSV and JSON. Opens it in the browser. Reads a live server (same options as collect_feedback) or a file: an earlier report's data.json, a backup_messages export, a channel export in JSON, a CSV with title/text columns, or plain text with one post per paragraph.",
     {
       ...collectShape,
-      file: external_exports.string().optional().describe("Path of a file to analyse instead of reading the server"),
-      title: external_exports.string().optional()
+      file: external_exports.string().optional().describe("Path of a file to analyse instead of reading the server")
     },
     async (a) => {
       let items, map2, name;
@@ -47160,10 +47702,14 @@ function register13(t) {
         name = c.guild.name;
       }
       if (!items.length) throw new DiscordError("No feedback found with these options.");
-      const r = report(items, map2);
-      const md = reportMarkdown(r, a.title || `Feedback report \xB7 ${name}${a.project ? " \xB7 " + a.project : ""}`);
-      const files = save2(INSIGHTS_DIR, `report-${safeName(name)}-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 16).replace(/[:T]/g, "-")}`, { server: name, items, report: r }, md);
-      return { ...r, files, note: "Tone is a word-list hint (English, Portuguese, some Spanish and German): read the most negative posts before drawing conclusions." };
+      const out2 = writeReport({ name, items, map: map2, title: a.title || `Feedback report \xB7 ${name}${a.project ? " \xB7 " + a.project : ""}`, open: a.open_report });
+      return {
+        report: out2.files.html,
+        opened_in_browser: out2.opened,
+        files: out2.files,
+        ...out2.summary,
+        note: "Show the user the report path and the main findings. Tone is a word-list hint (English, Portuguese, some Spanish and German): read the most negative posts before drawing conclusions."
+      };
     },
     READ
   );

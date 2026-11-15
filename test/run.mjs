@@ -17,7 +17,7 @@ writeFileSync(IMG, Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAA
 const transport = new StdioClientTransport({
   command: process.execPath,
   args: ["--import", join(here, "mock.mjs"), join(here, "..", "dist", "index.mjs")],
-  env: { ...process.env, HOME, USERPROFILE: HOME, DISCORD_BOT_TOKEN: "test-token", DISCORD_GATEWAY: "off", DISCORD_TOOLSETS: "all", MOCK_LOG: LOG },
+  env: { ...process.env, HOME, USERPROFILE: HOME, DISCORD_BOT_TOKEN: "test-token", DISCORD_GATEWAY: "off", DISCORD_TOOLSETS: "all", DSM_NO_OPEN: "1", MOCK_LOG: LOG },
 });
 const client = new Client({ name: "test", version: "1" });
 await client.connect(transport);
@@ -295,8 +295,10 @@ await check("collect_feedback", {}, ({ data }) => {
   assert.ok(first.sentiment < 0);
   assert.deepEqual(data.items.find((i) => i.title === "Map crash after the update").status, ["Approved"]);
   assert.ok(data.items.some((i) => i.kind === "reply" && i.author === "member-2"));
-  assert.ok(existsSync(data.file));
-  collectedFile = data.file;
+  assert.ok(existsSync(data.files.html) && existsSync(data.files.csv) && existsSync(data.files.markdown));
+  assert.match(readFileSync(data.files.html, "utf8"), /<svg|id="data"/);
+  assert.equal(data.totals.posts, 2, "the report summary comes back with the collection");
+  collectedFile = data.files.data;
 });
 await check("collect_feedback", { anonymize: false, include_replies: false }, ({ data }) => {
   assert.equal(data.replies, 0);
@@ -313,6 +315,11 @@ await check("feedback_report", { file: collectedFile }, ({ data }) => {
   assert.ok(data.themes.words.some((w) => w.term === "crash" || w.term === "map"));
   assert.ok(existsSync(data.files.markdown));
   assert.match(readFileSync(data.files.markdown, "utf8"), /## Projects/);
+  const html = readFileSync(data.files.html, "utf8");
+  assert.match(html, /Feedback by project/);
+  const embedded = JSON.parse(html.match(/<script type="application\/json" id="data">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(embedded.items.filter((i) => i.k !== "reply").length, 2);
+  assert.ok(readFileSync(data.files.csv, "utf8").includes("Game crashes when opening the map"));
 });
 {
   const csv = join(HOME, "reviews.csv");
@@ -340,7 +347,7 @@ async function withEnv(env, fn) {
   const t = new StdioClientTransport({
     command: process.execPath,
     args: ["--import", join(here, "mock.mjs"), join(here, "..", "dist", "index.mjs")],
-    env: { ...process.env, HOME, USERPROFILE: HOME, DISCORD_BOT_TOKEN: "test-token", DISCORD_GATEWAY: "off", DISCORD_TOOLSETS: "all", ...env },
+    env: { ...process.env, HOME, USERPROFILE: HOME, DISCORD_BOT_TOKEN: "test-token", DISCORD_GATEWAY: "off", DISCORD_TOOLSETS: "all", DSM_NO_OPEN: "1", ...env },
   });
   const c = new Client({ name: "test", version: "1" });
   await c.connect(t);
