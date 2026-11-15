@@ -2,6 +2,8 @@
 
 # discord-server-mcp
 
+[![M8ven Verified](https://m8ven.ai/badge/mcp/pr5ias-discord-server-mcp-qikii6?variant=verified&v=df40cfb8edc9a2be170f8f708456e23f)](https://m8ven.ai/mcp/pr5ias-discord-server-mcp-qikii6?s=readme)
+
 Create, organise and moderate **Discord servers from Claude** (or any MCP client) through your own bot.
 
 Ask in plain words: *"set up a server for my gaming group"*, *"add a Solved tag to the help forum"*, *"post this announcement with the image and ping @Announcements"*, *"who can see #staff-chat?"*. The assistant reads the server, shows you the plan, and acts once you agree.
