@@ -44747,7 +44747,7 @@ It is saved on this computer only and never goes into the chat.</p>
 }
 
 // src/version.js
-var VERSION = "1.0.0";
+var VERSION = "1.1.0";
 
 // src/tools/setup.js
 var RECOMMENDED = [

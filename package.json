@@ -1,6 +1,6 @@
 {
   "name": "discord-server-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MCP server and Claude plugin to create, organise and moderate Discord servers through your own bots: 132 tools (a 48-tool core, the rest on demand), live events, role menus, welcomes, tickets, staff slash commands, moderation logs with filters, staff alerts, support forums, rules, verification, scheduled messages, templates with previews, background jobs, backups and safety modes.",
   "type": "module",
   "main": "dist/index.mjs",
