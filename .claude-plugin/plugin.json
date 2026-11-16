@@ -1,6 +1,6 @@
 {
   "name": "discord-server",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Create, organise and moderate Discord servers from Claude through your own bot: channels, forums, permissions, roles, members, messages, templates and backups. Includes the /discord menu.",
   "author": {
     "name": "pr5ias"
