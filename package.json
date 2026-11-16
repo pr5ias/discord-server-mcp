@@ -9,6 +9,7 @@
   },
   "files": [
     "dist",
+    "server-card.json",
     "README.md",
     "LICENSE"
   ],

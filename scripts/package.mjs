@@ -26,7 +26,21 @@ const transport = new StdioClientTransport({
 });
 const client = new Client({ name: "package", version: "1" });
 await client.connect(transport);
-const tools = (await client.listTools()).tools.map((t) => ({ name: t.name, description: t.description.split(". ")[0].slice(0, 200) }));
+const listed = (await client.listTools()).tools;
+const tools = listed.map((t) => ({ name: t.name, description: t.description.split(". ")[0].slice(0, 200) }));
+
+// Static list of the tools, for directories that read the repository or the npm package instead of running the
+// server (MCP server card). Written at the root, so it is in the repository and in the npm package.
+await writeFile(join(root, "server-card.json"), JSON.stringify({
+  $schema: "https://static.modelcontextprotocol.io/schemas/mcp-server-card/v1.json",
+  version: "1.0",
+  serverInfo: { name: "io.github.pr5ias/discord-server-mcp", title: "Discord Server MCP", version: pkg.version },
+  description: pkg.description,
+  transport: { type: "stdio", command: "npx", args: ["-y", "discord-server-mcp"] },
+  capabilities: { tools: { listChanged: true } },
+  tools: listed.map((t) => ({ name: t.name, title: t.annotations?.title, description: t.description, inputSchema: t.inputSchema, annotations: t.annotations }))
+    .map((t) => Object.fromEntries(Object.entries(t).filter(([, v]) => v !== undefined))),
+}, null, 2) + "\n");
 await client.close();
 
 // ------------------------------------------------------------------ MCPB
