@@ -277,6 +277,19 @@ await check("read_messages", { channel: "general", limit: 5, full: true }, ({ da
   assert.deepEqual(e.fields, [{ name: "Field", value: "Field text", inline: true }]);
   assert.equal(data.messages[0].buttons[0].url, "https://example.com");
 });
+{
+  const { similarGroups } = await import("../src/insights.js");
+  const g = similarGroups([
+    { kind: "post", area: "suggestions", title: "Controller support for Steam Deck", text: "Add controller support for the Steam Deck." },
+    { kind: "post", area: "suggestions", title: "Multiplayer co-op support", text: "Any plans for multiplayer co-op?" },
+    { kind: "post", area: "suggestions", title: "Add a co-op mode", text: "Please add co-op so I can play with friends." },
+  ]);
+  try {
+    assert.equal(g.length, 1);
+    assert.deepEqual(g[0].posts.sort(), ["Add a co-op mode", "Multiplayer co-op support"]);
+    console.log("ok   repeated requests: a shared generic word is not enough");
+  } catch (e) { failures++; console.log(`FAIL repeated requests: ${e.message} ${JSON.stringify(g)}`); }
+}
 // Insights: map, collect and report.
 await check("map_server", {}, ({ data }) => {
   assert.deepEqual(data.areas.bugs, ["bug-reports"]);

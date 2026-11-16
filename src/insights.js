@@ -244,6 +244,10 @@ const stem = (w) => w.replace(/(?:ings|ing|ed|es|s)$/, (end, offset) => (offset 
  * Groups posts of the same area that look like the same request or problem: they share two significant words
  * (title and start of the text, project names left out), or one longer word that is in both titles ("co-op").
  */
+/** Words that say what kind of post it is, not what it is about: alone they do not make two posts the same. */
+const GENERIC = new Set(["support", "add", "request", "feature", "featur", "issue", "problem", "bug", "help", "question", "idea", "suggestion",
+  "suggestion", "please", "fix", "update", "new", "more", "better", "option", "setting", "pedido", "ajuda", "problema", "ideia", "sugestao"]);
+
 export function similarGroups(items) {
   const projectWords = new Set(items.flatMap((i) => i.projects || []).flatMap((p) => textWords(p)).map(stem));
   const clean = (s) => textWords(s || "").filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d+$/.test(w)).map(stem).filter((w) => !projectWords.has(w));
@@ -259,7 +263,7 @@ export function similarGroups(items) {
     posts.forEach((b, j) => {
       if (j <= i || used.has(j) || b.area !== a.area) return;
       const shared = [...sig(b)].filter((w) => sa.has(w));
-      const inTitles = [...titleSig(b)].filter((w) => ta.has(w) && w.length >= 4);
+      const inTitles = [...titleSig(b)].filter((w) => ta.has(w) && w.length >= 4 && !GENERIC.has(w));
       if (shared.length >= 2 || inTitles.length >= 1) { g.push(b); used.add(j); }
     });
     if (g.length > 1) {

@@ -46709,6 +46709,34 @@ function themes(items, limit = 15) {
   return { phrases: top(two), words: top(one) };
 }
 var stem = (w) => w.replace(/(?:ings|ing|ed|es|s)$/, (end, offset) => offset >= 3 ? "" : end);
+var GENERIC = /* @__PURE__ */ new Set([
+  "support",
+  "add",
+  "request",
+  "feature",
+  "featur",
+  "issue",
+  "problem",
+  "bug",
+  "help",
+  "question",
+  "idea",
+  "suggestion",
+  "suggestion",
+  "please",
+  "fix",
+  "update",
+  "new",
+  "more",
+  "better",
+  "option",
+  "setting",
+  "pedido",
+  "ajuda",
+  "problema",
+  "ideia",
+  "sugestao"
+]);
 function similarGroups(items) {
   const projectWords = new Set(items.flatMap((i) => i.projects || []).flatMap((p) => textWords(p)).map(stem));
   const clean = (s) => textWords(s || "").filter((w) => w.length >= 3 && !STOP.has(w) && !/^\d+$/.test(w)).map(stem).filter((w) => !projectWords.has(w));
@@ -46724,7 +46752,7 @@ function similarGroups(items) {
     posts.forEach((b, j) => {
       if (j <= i || used.has(j) || b.area !== a.area) return;
       const shared = [...sig(b)].filter((w) => sa.has(w));
-      const inTitles = [...titleSig(b)].filter((w) => ta.has(w) && w.length >= 4);
+      const inTitles = [...titleSig(b)].filter((w) => ta.has(w) && w.length >= 4 && !GENERIC.has(w));
       if (shared.length >= 2 || inTitles.length >= 1) {
         g.push(b);
         used.add(j);
@@ -47520,7 +47548,7 @@ async function collect(a) {
             area: info2.area,
             channel: c.name,
             title: ticket ? c.name : void 0,
-            projects: projectsIn([c.name, cats[c.parent_id], m.content], projects).concat(info2.projects).filter((v, j, s) => s.indexOf(v) === j),
+            projects: projectsIn([c.name, cats[c.parent_id], textOf(m)], projects).concat(info2.projects).filter((v, j, s) => s.indexOf(v) === j),
             text: textOf(m),
             author: person(m),
             reactions: reactionsOf(m),

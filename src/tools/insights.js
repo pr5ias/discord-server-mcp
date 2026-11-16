@@ -107,7 +107,7 @@ export async function collect(a) {
         msgs.forEach((m, i) => {
           const it = {
             kind: ticket ? (i === 0 ? "post" : "reply") : "post", area: info.area, channel: c.name, title: ticket ? c.name : undefined,
-            projects: projectsIn([c.name, cats[c.parent_id], m.content], projects).concat(info.projects).filter((v, j, s) => s.indexOf(v) === j),
+            projects: projectsIn([c.name, cats[c.parent_id], textOf(m)], projects).concat(info.projects).filter((v, j, s) => s.indexOf(v) === j),
             text: textOf(m), author: person(m), reactions: reactionsOf(m), replies: ticket && i === 0 ? msgs.length - 1 : undefined,
             created: m.timestamp, link: messageLink(g, c.id, m.id),
           };
